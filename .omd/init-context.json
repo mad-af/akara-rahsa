@@ -1,0 +1,28 @@
+{
+  "reference_id": "hyundaicard",
+  "description": "Landing page perusahaan wedding content creator, premium editorial minimal",
+  "mode": "inspired",
+  "delta_set": {
+    "axes": {
+      "color.hue_deg": 30,
+      "color.saturation_pct": 10,
+      "color.lightness_pct": 2
+    },
+    "voiceHints": [
+      "warm premium",
+      "editorial but approachable",
+      "romantic undertone without being saccharine"
+    ],
+    "matchedKeywords": [
+      "premium",
+      "editorial",
+      "minimal",
+      "typography",
+      "clean"
+    ],
+    "warnings": [
+      "monochrome reference (hyundaicard) vs warm wedding context — warm accent added as secondary"
+    ]
+  },
+  "bootstrapped_at": "2026-07-10T22:30:00+07:00"
+}

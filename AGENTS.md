@@ -1,0 +1,42 @@
+## Development
+
+When starting the dev server, use background mode:
+
+```
+astro dev --background
+```
+
+Manage the background server with `astro dev stop`, `astro dev status`, and `astro dev logs`.
+
+## Documentation
+
+Full documentation: https://docs.astro.build
+
+Consult these guides before working on related tasks:
+
+- [Adding pages, dynamic routes, or middleware](https://docs.astro.build/en/guides/routing/)
+- [Working with Astro components](https://docs.astro.build/en/basics/astro-components/)
+- [Using React, Vue, Svelte, or other framework components](https://docs.astro.build/en/guides/framework-components/)
+- [Adding or managing content](https://docs.astro.build/en/guides/content-collections/)
+- [Adding styles or using Tailwind](https://docs.astro.build/en/guides/styling/)
+- [Supporting multiple languages](https://docs.astro.build/en/guides/internationalization/)
+
+<!-- omd:start v=1 hash=6a3cdd5f5687 -->
+## Design System (oh-my-design)
+
+**Before any UI, styling, copy, or motion change, open and read `./DESIGN.md` in full.** It is the authoritative brand/design spec. Treat its tokens, voice, and component rules as binding unless the user overrides in chat.
+
+If present, read `./.omd/preferences.md` — pending corrections not yet folded into DESIGN.md. Apply them; flag conflicts.
+<!-- omd:end -->
+
+<!-- omd:start v=1 hash=eaabb67b8eed -->
+# Design System (oh-my-design)
+
+The authoritative brand & UI spec is **@./DESIGN.md**.
+
+Read before any UI/styling/microcopy/motion work.
+
+Preference log (pending corrections): @./.omd/preferences.md
+
+Precedence: DESIGN.md > preferences.md > your defaults.
+<!-- omd:end -->

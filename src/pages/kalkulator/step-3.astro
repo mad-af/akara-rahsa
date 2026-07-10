@@ -1,0 +1,57 @@
+<div class="kh-step active">
+  <h2 class="kh-step-title">Jenis Coverage</h2>
+  <p class="kh-step-desc">Pilih jenis coverage yang kamu inginkan</p>
+  <div class="kh-options" id="step3-options">
+    <button class="kh-opt" data-value="foto">
+      <span class="kh-opt-label">Foto</span>
+      <span class="kh-opt-desc">Dokumentasi foto profesional</span>
+      <span class="kh-opt-price">Biaya — (termasuk paket dasar)</span>
+    </button>
+    <button class="kh-opt" data-value="fotoVideo">
+      <span class="kh-opt-label">Foto + Video</span>
+      <span class="kh-opt-desc">Foto dan video highlight</span>
+      <span class="kh-opt-price">Biaya + Rp 800.000</span>
+    </button>
+    <button class="kh-opt" data-value="drone">
+      <span class="kh-opt-label">+ Drone</span>
+      <span class="kh-opt-desc">Foto, video, dan aerial shot</span>
+      <span class="kh-opt-price">Biaya + Rp 500.000</span>
+    </button>
+  </div>
+  <div class="kh-nav">
+    <button class="btn-secondary"
+      hx-get="/kalkulator/step-2"
+      hx-target="#step-container"
+      hx-swap="innerHTML">Kembali</button>
+    <button class="btn-primary kh-next"
+      hx-get="/kalkulator/step-4"
+      hx-target="#step-container"
+      hx-swap="innerHTML"
+      disabled>Lanjut</button>
+  </div>
+</div>
+
+<script is:inline>
+(function() {
+  var saved = sessionStorage.getItem('kal_coverage');
+  var nextBtn = document.querySelector('.kh-next');
+  var options = document.getElementById('step3-options');
+
+  if (saved) {
+    var sel = options.querySelector('[data-value="' + saved + '"]');
+    if (sel) { sel.classList.add('selected'); nextBtn.removeAttribute('disabled'); }
+  }
+
+  options.addEventListener('click', function(e) {
+    var btn = e.target.closest('.kh-opt');
+    if (!btn) return;
+    var val = btn.getAttribute('data-value');
+    options.querySelectorAll('.kh-opt').forEach(function(el) { el.classList.remove('selected'); });
+    btn.classList.add('selected');
+    sessionStorage.setItem('kal_coverage', val);
+    nextBtn.removeAttribute('disabled');
+  });
+
+  updateProgress(3, 5);
+})();
+</script>

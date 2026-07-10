@@ -1,0 +1,327 @@
+---
+export interface Props {
+  title?: string;
+}
+
+const { title = 'Akara Rahsa' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="id" style="scroll-behavior: smooth;">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Noto+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <title>{title}</title>
+    <style is:global>
+      @import 'aos/dist/aos.css';
+
+      :root {
+        --ink: #1A1A1A;
+        --ground: #FFFFFF;
+        --rose: #E8B4B8;
+        --rose-dark: #D4A0A5;
+        --ink-secondary: #666666;
+        --font-display: 'Playfair Display', Georgia, serif;
+        --font-body: 'Noto Sans', system-ui, sans-serif;
+        --body-size: 15px;
+        --body-leading: 1.8;
+        --section-py: 8rem;
+        --max-width: 1000px;
+        --max-width-wide: 1200px;
+        --gutter: 1.5rem;
+        --btn-height: 48px;
+      }
+
+      *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        font-size: 100%;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      body {
+        background: var(--ground);
+        color: var(--ink);
+        font-family: var(--font-body);
+        font-size: var(--body-size);
+        line-height: var(--body-leading);
+        overflow-x: hidden;
+        animation: pageFadeIn 0.6s ease-out;
+      }
+
+      @keyframes pageFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      /* ── Navigation ── */
+      .nav-link {
+        position: relative;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        transition: opacity 0.3s;
+      }
+      .nav-link::after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        background: var(--ink);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.2s ease-out;
+      }
+      .nav-link:hover {
+        opacity: 0.5;
+      }
+      .nav-link:hover::after {
+        transform: scaleX(1);
+      }
+
+      /* ── Eyebrow text ── */
+      .eyebrow {
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--ink);
+        margin-bottom: 1.5rem;
+      }
+
+      /* ── Buttons (square) ── */
+      .btn-primary {
+        background: var(--rose);
+        color: var(--ink);
+        border: none;
+        height: var(--btn-height);
+        padding: 0 2rem;
+        font-family: var(--font-body);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: opacity 0.3s, transform 0.15s, box-shadow 0.15s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      }
+      .btn-primary:hover {
+        opacity: 0.7;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+      }
+      .btn-primary:active {
+        transform: translateY(1px);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+      }
+
+      .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        height: var(--btn-height);
+        padding: 0 2rem;
+        border: 1px solid var(--ink);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--ink);
+        background: transparent;
+        transition: opacity 0.3s, transform 0.15s;
+      }
+      .btn-secondary:hover {
+        opacity: 0.5;
+      }
+      .btn-secondary:active {
+        transform: translateY(1px);
+      }
+
+      .btn-secondary-light {
+        display: inline-flex;
+        align-items: center;
+        height: var(--btn-height);
+        padding: 0 2rem;
+        border: 1px solid rgba(255,255,255,0.3);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--ground);
+        background: transparent;
+        transition: opacity 0.3s, transform 0.15s;
+      }
+      .btn-secondary-light:hover {
+        opacity: 0.5;
+      }
+      .btn-secondary-light:active {
+        transform: translateY(1px);
+      }
+
+      /* ── Portfolio Card Hover ── */
+      .portfolio-card-wrapper {
+        overflow: hidden;
+      }
+      .portfolio-card {
+        position: relative;
+      }
+      .portfolio-card-bg {
+        position: absolute;
+        inset: 0;
+        background-size: cover;
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        will-change: transform;
+      }
+      .portfolio-card::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0);
+        transition: background 0.6s ease-out;
+        pointer-events: none;
+      }
+      .portfolio-card-wrapper:hover .portfolio-card-bg {
+        transform: scale(1.12);
+      }
+      .portfolio-card-wrapper:hover .portfolio-card::after {
+        background: rgba(0,0,0,0.15);
+      }
+      .portfolio-card-label {
+        position: relative;
+        z-index: 1;
+      }
+
+      /* ── Hero Line Reveal ── */
+      .hero-title {
+        overflow: hidden;
+      }
+      .hero-line {
+        display: block;
+        overflow: hidden;
+      }
+      .hero-line span {
+        display: block;
+        animation: lineReveal 0.7s ease-out forwards;
+        opacity: 0;
+        transform: translateY(100%);
+      }
+      .hero-line:nth-child(1) span { animation-delay: 0.1s; }
+      .hero-line:nth-child(2) span { animation-delay: 0.22s; }
+
+      @keyframes lineReveal {
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+
+      /* ── Decorative Quote Mark ── */
+      blockquote.quote-deco {
+        position: relative;
+      }
+      blockquote.quote-deco::before {
+        content: '"';
+        position: absolute;
+        top: -1.2rem;
+        left: -1.5rem;
+        font-size: 6rem;
+        line-height: 1;
+        color: var(--rose);
+        opacity: 0.3;
+        animation: quoteFloat 3s ease-in-out infinite;
+        pointer-events: none;
+        font-family: var(--font-display);
+      }
+      @keyframes quoteFloat {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+      }
+
+      /* ── Smooth reveal base ── */
+      [data-aos] {
+        pointer-events: none;
+      }
+      [data-aos].aos-animate {
+        pointer-events: auto;
+      }
+
+      /* ── Responsive ── */
+      @media (max-width: 768px) {
+        :root {
+          --section-py: 4rem;
+          --gutter: 1rem;
+        }
+        .hero-grid {
+          grid-template-columns: 1fr !important;
+          height: auto !important;
+        }
+        .hero-grid > div {
+          height: 200px !important;
+        }
+        .tentang-grid {
+          grid-template-columns: 1fr !important;
+          gap: 2rem !important;
+        }
+        .layanan-grid {
+          grid-template-columns: 1fr !important;
+        }
+        .portofolio-grid {
+          grid-template-columns: 1fr !important;
+        }
+        section[id="portofolio"] a {
+          height: 220px !important;
+        }
+        [data-aos] {
+          pointer-events: auto !important;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .hero-grid > div {
+          height: 160px !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <slot />
+    <script>
+      import 'htmx.org';
+      import AOS from 'aos';
+      import 'aos/dist/aos.css';
+
+      AOS.init({
+        duration: 600,
+        easing: 'ease-out',
+        once: true,
+        offset: 80,
+      });
+    </script>
+  </body>
+</html>

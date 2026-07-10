@@ -1,0 +1,51 @@
+<div class="kh-step active">
+  <h2 class="kh-step-title">Pilih Jenis Acara</h2>
+  <p class="kh-step-desc">Acara apa yang akan kamu dokumentasikan?</p>
+  <div class="kh-options" id="step1-options">
+    <button class="kh-opt" data-value="akad">
+      <span class="kh-opt-label">Akad</span>
+      <span class="kh-opt-desc">Dokumentasi akad nikah saja</span>
+      <span class="kh-opt-price">Biaya Rp 1.500.000</span>
+    </button>
+    <button class="kh-opt" data-value="akadResepsi">
+      <span class="kh-opt-label">Akad + Resepsi</span>
+      <span class="kh-opt-desc">Akad nikah dan resepsi dalam satu hari</span>
+      <span class="kh-opt-price">Biaya Rp 3.000.000</span>
+    </button>
+    <button class="kh-opt" data-value="plusPrewedding">
+      <span class="kh-opt-label">+ Prewedding</span>
+      <span class="kh-opt-desc">Akad, resepsi, plus sesi prewedding terpisah</span>
+      <span class="kh-opt-price">Biaya Rp 4.000.000</span>
+    </button>
+  </div>
+  <button class="btn-primary kh-next"
+    hx-get="/kalkulator/step-2"
+    hx-target="#step-container"
+    hx-swap="innerHTML"
+    disabled>Lanjut</button>
+</div>
+
+<script is:inline>
+(function() {
+  var saved = sessionStorage.getItem('kal_acara');
+  var nextBtn = document.querySelector('.kh-next');
+  var options = document.getElementById('step1-options');
+
+  if (saved) {
+    var sel = options.querySelector('[data-value="' + saved + '"]');
+    if (sel) { sel.classList.add('selected'); nextBtn.removeAttribute('disabled'); }
+  }
+
+  options.addEventListener('click', function(e) {
+    var btn = e.target.closest('.kh-opt');
+    if (!btn) return;
+    var val = btn.getAttribute('data-value');
+    options.querySelectorAll('.kh-opt').forEach(function(el) { el.classList.remove('selected'); });
+    btn.classList.add('selected');
+    sessionStorage.setItem('kal_acara', val);
+    nextBtn.removeAttribute('disabled');
+  });
+
+  updateProgress(1, 5);
+})();
+</script>

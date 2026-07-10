@@ -1,0 +1,302 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Akara Rahsa — Wedding Content Creator">
+  <!-- Navigation -->
+  <div id="navbar" style="position: sticky; top: 0; left: 0; right: 0; z-index: 100; width: 100%;">
+    <header style="max-width: var(--max-width-wide); margin: 0 auto; padding: 1.5rem var(--gutter); display: flex; align-items: center; justify-content: space-between;">
+      <span style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em;">
+        Akara Rahsa
+      </span>
+      <nav style="display: flex; gap: 2rem;">
+        <a href="#tentang" class="nav-link">Tentang</a>
+        <a href="#layanan" class="nav-link">Layanan</a>
+        <a href="#portofolio" class="nav-link">Portofolio</a>
+        <a href="#kontak" class="nav-link">Kontak</a>
+      </nav>
+    </header>
+  </div>
+
+  <main>
+    <!-- ═══ HERO: Photo Grid ═══ -->
+    <section style="padding: 0;">
+      <div
+        class="hero-grid"
+        data-aos="fade-up"
+        data-aos-duration="800"
+        style="display: grid; grid-template-columns: 2fr 1fr; height: min(40vh, 300px);"
+      >
+        <!-- Left: large photo -->
+        <div style="background-image: url('https://images.unsplash.com/photo-1780291658067-60e546c8cce9?w=900&q=85&fit=crop'); background-size: cover; background-position: center;">
+        </div>
+
+        <!-- Right: 2 photos side by side -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr;">
+          <div style="background-image: url('https://images.unsplash.com/photo-1718964313078-89c20c1be92f?w=400&q=85&fit=crop'); background-size: cover; background-position: center;">
+          </div>
+          <div style="background-image: url('https://images.unsplash.com/photo-1706857753016-f6240ca58d08?w=400&q=85&fit=crop'); background-size: cover; background-position: center;">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ HERO: Text ═══ -->
+    <section style="max-width: var(--max-width); margin: 0 auto; padding: 5rem var(--gutter) var(--section-py);">
+      <p class="eyebrow" data-aos="fade-up" data-aos-duration="700">Wedding Content Creator</p>
+
+      <h1
+        class="hero-title"
+        style="font-family: var(--font-display); font-size: clamp(2.5rem, 5vw, 3.75rem); font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 1.5rem; max-width: 800px; color: var(--ink);"
+      >
+        <span class="hero-line"><span>Cerita Pernikahan yang</span></span>
+        <span class="hero-line"><span>Abadi dalam Setiap Bingkai</span></span>
+      </h1>
+
+      <p
+        data-aos="fade-up"
+        data-aos-duration="700"
+        data-aos-delay="150"
+        style="max-width: 480px; color: var(--ink-secondary); font-size: 1.05rem; line-height: 1.7; margin-bottom: 2.5rem;"
+      >
+        Untuk momen yang jujur, elegan, dan penuh rasa — kami mengabadikan hari istimewa Anda dengan pendekatan editorial yang tenang dan penuh perhatian.
+      </p>
+
+      <div data-aos="fade-up" data-aos-duration="700" data-aos-delay="200">
+        <a href="#kontak" class="btn-primary">Jadwalkan Konsultasi</a>
+      </div>
+    </section>
+
+    <!-- ═══ TESTIMONIAL ═══ -->
+    <section style="max-width: var(--max-width); margin: 0 auto; padding: 0 var(--gutter) var(--section-py);">
+      <div
+        data-aos="fade-up"
+        data-aos-duration="700"
+        style="border-top: 1px solid #E5E5E5; padding-top: 3rem;"
+      >
+        <blockquote class="quote-deco" style="font-family: var(--font-display); font-size: 1.25rem; font-style: italic; line-height: 1.6; color: var(--ink); margin-bottom: 1rem; max-width: 600px;">
+          &ldquo;Love is a canvas furnished by nature and embroidered by the imagination.&rdquo;
+        </blockquote>
+        <cite style="font-size: 0.8125rem; font-style: normal; color: var(--ink-secondary);">— Voltaire</cite>
+      </div>
+    </section>
+
+    <!-- ═══ TENTANG ═══ -->
+    <section
+      id="tentang"
+      style=" padding: var(--section-py) 0; border-top: 1px solid #E5E5E5;"
+    >
+      <div
+        style="max-width: var(--max-width); margin: 0 auto; padding: 0 var(--gutter);"
+        data-aos="fade-up"
+        data-aos-duration="700"
+      >
+        <p class="eyebrow">Tentang</p>
+        <h2 style="font-family: var(--font-display); font-size: 2rem; font-weight: 700; margin-bottom: 2rem; letter-spacing: -0.02em; max-width: 600px;">
+          Akara Rahsa
+        </h2>
+        <div class="tentang-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 4rem;">
+          <p style="color: var(--ink-secondary); font-size: 1rem; line-height: 1.9;">
+            Kami percaya setiap pernikahan memiliki cerita yang layak dibingkai dengan cara yang paling jujur dan indah. Dengan pendekatan editorial, kami hadir bukan sekadar merekam — tetapi merangkai momen menjadi narasi visual yang akan dikenang selamanya.
+          </p>
+          <p style="color: var(--ink-secondary); font-size: 0.875rem; line-height: 1.8;">
+            Berbasis di Indonesia, kami melayani calon pengantin dan vendor pernikahan yang menghargai keindahan dalam kesederhanaan. Pendekatan kami tenang, jujur, dan penuh perhatian terhadap detail.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ LAYANAN ═══ -->
+    <section
+      id="layanan"
+      style="padding: var(--section-py) 0; border-top: 1px solid #E5E5E5; background: #FCFCFC;"
+    >
+      <div
+        style="max-width: var(--max-width); margin: 0 auto; padding: 0 var(--gutter);"
+        data-aos="fade-up"
+        data-aos-duration="700"
+      >
+        <p class="eyebrow">Layanan</p>
+        <h2 style="font-family: var(--font-display); font-size: 2rem; font-weight: 700; margin-bottom: 3rem; letter-spacing: -0.02em;">
+          Yang Kami Tawarkan
+        </h2>
+        <div class="layanan-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #E5E5E5; border: 1px solid #E5E5E5;">
+          <div style="background: var(--ground); padding: 2.5rem;">
+            <p style="font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 1rem; color: var(--ink);">
+              01
+            </p>
+            <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; letter-spacing: -0.01em;">
+              Dokumentasi Pernikahan
+            </h3>
+            <p style="color: var(--ink-secondary); font-size: 0.875rem; line-height: 1.8;">
+              Foto dan video full-day coverage dengan pendekatan editorial dan candid. Momen-momen tulus yang dirangkai tanpa rekayasa.
+            </p>
+          </div>
+          <div style="background: var(--ground); padding: 2.5rem;">
+            <p style="font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 1rem; color: var(--ink);">
+              02
+            </p>
+            <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; letter-spacing: -0.01em;">
+              Cinematic Film
+            </h3>
+            <p style="color: var(--ink-secondary); font-size: 0.875rem; line-height: 1.8;">
+              Film pernikahan bergaya sinematografis yang menceritakan ulang hari istimewa Anda — dari highlights pagi hingga akhir resepsi.
+            </p>
+          </div>
+          <div style="background: var(--ground); padding: 2.5rem;">
+            <p style="font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 1rem; color: var(--ink);">
+              03
+            </p>
+            <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; letter-spacing: -0.01em;">
+              Pre-wedding & Engagement
+            </h3>
+            <p style="color: var(--ink-secondary); font-size: 0.875rem; line-height: 1.8;">
+              Sesi pra-nikah yang intim dan personal, di lokasi yang bermakna bagi Anda berdua. Gaya editorial, hasil gallery-worthy.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ PORTOFOLIO ═══ -->
+    <section
+      id="portofolio"
+      style="padding: var(--section-py) 0; border-top: 1px solid #E5E5E5;"
+    >
+      <div
+        style="max-width: var(--max-width-wide); margin: 0 auto; padding: 0 var(--gutter);"
+        data-aos="fade-up"
+        data-aos-duration="700"
+      >
+        <p class="eyebrow">Portofolio</p>
+        <h2 style="font-family: var(--font-display); font-size: 2rem; font-weight: 700; margin-bottom: 1rem; letter-spacing: -0.02em;">
+          Karya Terpilih
+        </h2>
+        <p style="color: var(--ink-secondary); margin-bottom: 3rem; max-width: 440px;">
+          Beberapa momen yang pernah kami abadikan. Setiap cerita memiliki warna dan nadanya sendiri.
+        </p>
+
+        <div class="portofolio-grid" style="display: grid; grid-template-columns: 1fr 1fr;">
+          <div class="portfolio-card-wrapper"><a href="/portofolio/1" class="portfolio-card" style="height: 280px; display: flex; align-items: flex-end; padding: 2rem; color: #fff; position: relative;">
+            <div class="portfolio-card-bg" style="background-image: url('https://images.unsplash.com/photo-1695266392136-1805eef542ac?w=800&q=85&fit=crop'); background-position: center;"></div>
+            <span class="portfolio-card-label" style="font-family: var(--font-body); font-size: 0.8125rem; font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,0.3);">Rina &amp; Andi — Akad Nikah <span style="opacity: 0.7; margin-left: 0.5rem;">&rarr;</span></span>
+          </a></div>
+          <div class="portfolio-card-wrapper"><a href="/portofolio/2" class="portfolio-card" style="height: 280px; display: flex; align-items: flex-end; padding: 2rem; color: #fff; position: relative;">
+            <div class="portfolio-card-bg" style="background-image: url('https://images.unsplash.com/photo-1776266098665-2668b379bdff?w=800&q=85&fit=crop'); background-position: center;"></div>
+            <span class="portfolio-card-label" style="font-family: var(--font-body); font-size: 0.8125rem; font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,0.3);">Sari &amp; Budi — Engagement <span style="opacity: 0.7; margin-left: 0.5rem;">&rarr;</span></span>
+          </a></div>
+          <div class="portfolio-card-wrapper"><a href="/portofolio/3" class="portfolio-card" style="height: 280px; display: flex; align-items: flex-end; padding: 2rem; color: #fff; position: relative;">
+            <div class="portfolio-card-bg" style="background-image: url('https://images.unsplash.com/photo-1767127419331-c77848620af6?w=800&q=85&fit=crop'); background-position: center;"></div>
+            <span class="portfolio-card-label" style="font-family: var(--font-body); font-size: 0.8125rem; font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,0.3);">Dewi &amp; Yoga — Resepsi <span style="opacity: 0.7; margin-left: 0.5rem;">&rarr;</span></span>
+          </a></div>
+          <div class="portfolio-card-wrapper"><a href="/portofolio/4" class="portfolio-card" style="height: 280px; display: flex; align-items: flex-end; padding: 2rem; color: #fff; position: relative;">
+            <div class="portfolio-card-bg" style="background-image: url('https://images.unsplash.com/photo-1649289887707-4131abd76276?w=800&q=85&fit=crop'); background-position: center;"></div>
+            <span class="portfolio-card-label" style="font-family: var(--font-body); font-size: 0.8125rem; font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,0.3);">Maya &amp; Alex — Prewedding <span style="opacity: 0.7; margin-left: 0.5rem;">&rarr;</span></span>
+          </a></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ TESTIMONIALS ═══ -->
+    <section
+      style="padding: var(--section-py) 0; border-top: 1px solid #E5E5E5; background: #FCFCFC;"
+    >
+      <div
+        style="max-width: var(--max-width); margin: 0 auto; padding: 0 var(--gutter);"
+        data-aos="fade-up"
+        data-aos-duration="700"
+      >
+        <p class="eyebrow">Testimoni</p>
+        <h2 style="font-family: var(--font-display); font-size: 2rem; font-weight: 700; margin-bottom: 3rem; letter-spacing: -0.02em;">
+          Kata Mereka
+        </h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;">
+          <div>
+            <blockquote style="font-size: 0.9375rem; line-height: 1.8; color: var(--ink-secondary); margin-bottom: 1rem;">
+              &ldquo;Their approach was calm but not passive. We felt completely at ease throughout the day, and the results are timeless.&rdquo;
+            </blockquote>
+            <cite style="font-size: 0.8125rem; font-style: normal; font-weight: 500; color: var(--ink);">— Maya &amp; Alex</cite>
+          </div>
+          <div>
+            <blockquote style="font-size: 0.9375rem; line-height: 1.8; color: var(--ink-secondary); margin-bottom: 1rem;">
+              &ldquo;Professional dari awal sampai akhir. Hasil fotonya jujur, elegan, dan benar-benar menceritakan hari kami.&rdquo;
+            </blockquote>
+            <cite style="font-size: 0.8125rem; font-style: normal; font-weight: 500; color: var(--ink);">— Tari &amp; Dimas</cite>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ CTA ═══ -->
+    <section
+      id="kontak"
+      style="background: var(--ink); color: var(--ground); padding: var(--section-py) 0;"
+    >
+      <div
+        style="max-width: var(--max-width); margin: 0 auto; padding: 0 var(--gutter); text-align: center;"
+        data-aos="fade-up"
+        data-aos-duration="700"
+      >
+        <p class="eyebrow" style="color: rgba(255,255,255,0.5);">Hubungi Kami</p>
+        <h2 style="font-family: var(--font-display); font-size: clamp(2rem, 4vw, 2.75rem); font-weight: 700; margin-bottom: 1.5rem; color: var(--ground); letter-spacing: -0.02em;">
+          Mulai Cerita Anda
+        </h2>
+        <p style="max-width: 400px; margin: 0 auto 2.5rem; color: rgba(255,255,255,0.5); font-size: 0.9375rem; line-height: 1.7;">
+          Siap mengabadikan hari istimewa Anda? Hubungi kami untuk diskusi lebih lanjut.
+        </p>
+        <a
+          href="mailto:hello@akarahsa.com"
+          class="btn-primary"
+          style="display: inline-flex;"
+        >
+          Hubungi Kami
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer style="background: var(--ink); border-top: 1px solid rgba(255,255,255,0.08);">
+    <div style="max-width: var(--max-width-wide); margin: 0 auto; padding: 2rem var(--gutter); display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: rgba(255,255,255,0.4);">
+      <span>&copy; 2026 Akara Rahsa</span>
+      <div style="display: flex; gap: 2rem;">
+        <a href="https://instagram.com/akarahsa" target="_blank" style="transition: opacity 0.3s;">Instagram</a>
+        <a href="mailto:hello@akarahsa.com" style="transition: opacity 0.3s;">Email</a>
+      </div>
+    </div>
+  </footer>
+
+  <style>
+    #navbar {
+      position: sticky;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      width: 100%;
+      background: transparent;
+      transition: background 0.3s, backdrop-filter 0.3s, border-bottom 0.3s;
+    }
+    #navbar.scrolled {
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+
+  </style>
+
+  <script>
+    const navbar = document.getElementById('navbar');
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          navbar.classList.toggle('scrolled', window.scrollY > 60);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+  </script>
+</Layout>

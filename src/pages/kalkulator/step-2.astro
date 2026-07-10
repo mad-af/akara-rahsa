@@ -1,0 +1,52 @@
+<div class="kh-step active">
+  <h2 class="kh-step-title">Berapa Hari Shooting?</h2>
+  <p class="kh-step-desc">Berapa hari durasi coverage yang kamu butuhkan?</p>
+  <div class="kh-options" id="step2-options">
+    <button class="kh-opt" data-value="1">
+      <span class="kh-opt-label">1 Hari</span>
+      <span class="kh-opt-desc">Coverage dalam satu hari penuh</span>
+      <span class="kh-opt-price">Biaya — (termasuk paket dasar)</span>
+    </button>
+    <button class="kh-opt" data-value="2">
+      <span class="kh-opt-label">2 Hari</span>
+      <span class="kh-opt-desc">Dua hari untuk akad dan resepsi terpisah</span>
+      <span class="kh-opt-price">Biaya + Rp 1.000.000</span>
+    </button>
+  </div>
+  <div class="kh-nav">
+    <button class="btn-secondary"
+      hx-get="/kalkulator/step-1"
+      hx-target="#step-container"
+      hx-swap="innerHTML">Kembali</button>
+    <button class="btn-primary kh-next"
+      hx-get="/kalkulator/step-3"
+      hx-target="#step-container"
+      hx-swap="innerHTML"
+      disabled>Lanjut</button>
+  </div>
+</div>
+
+<script is:inline>
+(function() {
+  var saved = sessionStorage.getItem('kal_hari');
+  var nextBtn = document.querySelector('.kh-next');
+  var options = document.getElementById('step2-options');
+
+  if (saved) {
+    var sel = options.querySelector('[data-value="' + saved + '"]');
+    if (sel) { sel.classList.add('selected'); nextBtn.removeAttribute('disabled'); }
+  }
+
+  options.addEventListener('click', function(e) {
+    var btn = e.target.closest('.kh-opt');
+    if (!btn) return;
+    var val = btn.getAttribute('data-value');
+    options.querySelectorAll('.kh-opt').forEach(function(el) { el.classList.remove('selected'); });
+    btn.classList.add('selected');
+    sessionStorage.setItem('kal_hari', val);
+    nextBtn.removeAttribute('disabled');
+  });
+
+  updateProgress(2, 5);
+})();
+</script>

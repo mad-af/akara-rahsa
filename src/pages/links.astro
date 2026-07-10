@@ -1,0 +1,140 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Links — Akara Rahsa">
+  <main class="links-page">
+    <div class="links-profile">
+      <h1 class="links-name">Akara Rahsa</h1>
+      <p class="links-tagline">Wedding Content Creator</p>
+    </div>
+
+    <div class="links-card-list">
+      <a href="/" class="links-card">
+        <span class="links-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+        </span>
+        <span class="links-card-label">Website Akara Rahsa</span>
+        <span class="links-card-arrow">→</span>
+      </a>
+
+      <a href="https://wa.me/628xxxxx" class="links-card">
+        <span class="links-card-icon">
+          <img src="https://cdn.simpleicons.org/whatsapp" width="22" height="22" alt="WhatsApp" />
+        </span>
+        <span class="links-card-label">Chat WhatsApp</span>
+        <span class="links-card-arrow">→</span>
+      </a>
+
+      <a href="https://tiktok.com/@akara.rahsa" class="links-card">
+        <span class="links-card-icon">
+          <img src="https://cdn.simpleicons.org/tiktok" width="22" height="22" alt="TikTok" />
+        </span>
+        <span class="links-card-label">TikTok</span>
+        <span class="links-card-arrow">→</span>
+      </a>
+
+      <a href="https://instagram.com/@akara.rahsa" class="links-card">
+        <span class="links-card-icon">
+          <img src="https://cdn.simpleicons.org/instagram" width="22" height="22" alt="Instagram" />
+        </span>
+        <span class="links-card-label">Instagram</span>
+        <span class="links-card-arrow">→</span>
+      </a>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .links-page {
+    max-width: 380px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+    text-align: center;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: #FAFAFA;
+  }
+
+  .links-profile {
+    margin-bottom: 2.5rem;
+  }
+
+  .links-name {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 0.35rem;
+  }
+
+  .links-tagline {
+    font-size: 0.875rem;
+    color: var(--ink-secondary);
+    margin: 0;
+  }
+
+  .links-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .links-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid rgba(0,0,0,0.06);
+    text-decoration: none;
+    color: var(--ink);
+    transition: all 0.25s ease;
+    text-align: left;
+    background: #FAFAFA;
+  }
+
+  .links-card:hover {
+    background: #F8F8F8;
+    border-color: rgba(0,0,0,0.12);
+  }
+
+  .links-card-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.6;
+    flex-shrink: 0;
+  }
+
+  .links-card-icon img,
+  .links-card-icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .links-card-label {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    flex: 1;
+  }
+
+  .links-card-arrow {
+    font-size: 0.875rem;
+    color: #B0B0B0;
+    transition: transform 0.25s ease, color 0.25s ease;
+    flex-shrink: 0;
+  }
+
+  .links-card:hover .links-card-arrow {
+    transform: translateX(4px);
+    color: #E8B4B8;
+  }
+</style>

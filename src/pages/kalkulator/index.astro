@@ -1,0 +1,366 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Kalkulator Budget — Akara Rahsa" description="Estimasi budget dokumentasi pernikahan kamu secara transparan, tanpa ribet.">
+  <main class="kalkulator-page">
+
+    <!-- ═══ HERO ═══ -->
+    <section class="kh-hero" id="kh-hero">
+      <div class="kh-hero-inner">
+        <p class="kh-hero-eyebrow">Estimasi 30 Detik</p>
+        <h1 class="kh-title">Berapa Budget Dokumentasi Pernikahan Kamu?</h1>
+        <p class="kh-subtitle">Estimasi transparan tanpa ribet. Isi beberapa pilihan, dapatkan range harga sesuai kebutuhan kamu.</p>
+        <button id="btn-mulai" class="btn-primary"
+          hx-get="/kalkulator/step-1"
+          hx-target="#step-container"
+          hx-swap="innerHTML">Mulai Hitung</button>
+      </div>
+    </section>
+
+    <!-- ═══ KALKULATOR ═══ -->
+    <section id="kalkulator-section" style="display:none">
+      <div class="kh-progress">
+        <div class="kh-progress-track">
+          <div id="progress-bar" class="kh-progress-fill" style="width:0%"></div>
+        </div>
+        <p class="kh-progress-label">Step <span id="step-num">1</span> of 5</p>
+      </div>
+      <div id="step-container"></div>
+    </section>
+
+    <!-- ═══ SOCIAL PROOF ═══ -->
+    <section class="kh-social" id="kh-social" style="display:none">
+      <div class="kh-social-inner">
+        <p class="kh-social-text">Melayani pasangan di Kediri &amp; sekitarnya</p>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style is:global>
+  .kalkulator-page {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 6rem;
+  }
+
+  .kh-hero {
+    text-align: center;
+    padding: 6rem 0 4rem;
+  }
+
+  .kh-hero-eyebrow {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #E8B4B8;
+    margin-bottom: 1rem;
+  }
+
+  .kh-title {
+    font-family: var(--font-display);
+    font-size: 2.75rem;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+  }
+
+  .kh-subtitle {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--ink-secondary, #666);
+    max-width: 32rem;
+    margin: 0 auto 2rem;
+  }
+
+  .kh-progress {
+    margin-bottom: 2.5rem;
+  }
+
+  .kh-progress-track {
+    height: 3px;
+    background: rgba(0,0,0,0.08);
+    margin-bottom: 0.5rem;
+  }
+
+  .kh-progress-fill {
+    height: 100%;
+    background: #E8B4B8;
+    transition: width 0.4s ease;
+  }
+
+  .kh-progress-label {
+    font-size: 0.75rem;
+    color: var(--ink-secondary, #666);
+    text-align: right;
+  }
+
+  .kh-step-title {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+  }
+
+  .kh-step-desc {
+    font-size: 0.875rem;
+    color: var(--ink-secondary, #666);
+    margin-bottom: 1.5rem;
+  }
+
+  .kh-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .kh-opt {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 1.125rem 1.25rem;
+    border: 1px solid rgba(0,0,0,0.08);
+    background: var(--ground, #fff);
+    cursor: pointer;
+    font-family: var(--font-body);
+    transition: all 0.2s ease;
+  }
+
+  .kh-opt:hover {
+    border-color: rgba(0,0,0,0.18);
+    background: #FCFCFC;
+  }
+
+  .kh-opt.selected {
+    border-color: #E8B4B8;
+    background: rgba(232, 180, 184, 0.04);
+  }
+
+  .kh-opt-label {
+    display: block;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 0.25rem;
+  }
+
+  .kh-opt-desc {
+    display: block;
+    font-size: 0.8125rem;
+    color: var(--ink-secondary, #888);
+    font-weight: 400;
+  }
+
+  .kh-opt-price {
+    display: block;
+    font-size: 0.8125rem;
+    color: #E8B4B8;
+    font-weight: 500;
+    margin-top: 0.5rem;
+  }
+
+  .kh-opt--multi.selected {
+    border-color: #E8B4B8;
+    background: rgba(232, 180, 184, 0.06);
+  }
+
+  .kh-nav {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .kh-nav .btn-primary,
+  .kh-nav .btn-secondary {
+    flex: 1;
+  }
+
+  .kh-result-items {
+    border-top: 1px solid rgba(0,0,0,0.06);
+    margin-bottom: 1.5rem;
+  }
+
+  .kh-result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.875rem 0;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    font-size: 0.875rem;
+  }
+
+  .kh-result-label {
+    color: var(--ink-secondary, #666);
+  }
+
+  .kh-result-value {
+    font-weight: 500;
+    color: var(--ink);
+    text-align: right;
+  }
+
+  .kh-result-total {
+    text-align: center;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    margin-bottom: 1rem;
+  }
+
+  .kh-result-estimate-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-secondary, #666);
+    margin-bottom: 0.5rem;
+  }
+
+  .kh-result-estimate {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #E8B4B8;
+    letter-spacing: -0.01em;
+  }
+
+  .kh-result-note {
+    font-size: 0.8125rem;
+    color: var(--ink-secondary, #888);
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  .kh-lead {
+    padding: 1.5rem 0;
+  }
+
+  .kh-lead-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .kh-lead-form input:focus {
+    border-color: #E8B4B8;
+    outline: none;
+  }
+
+  .kh-lead-form .btn-primary {
+    width: 100%;
+  }
+
+  .kh-social {
+    text-align: center;
+    padding-top: 4rem;
+  }
+
+  .kh-social-text {
+    font-size: 0.875rem;
+    color: var(--ink-secondary, #888);
+  }
+
+  @keyframes khFadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .kh-step.active {
+    animation: khFadeIn 0.35s ease-out;
+  }
+
+  @media (max-width: 768px) {
+    .kalkulator-page {
+      padding: 2rem 1rem 4rem;
+    }
+    .kh-hero {
+      padding: 4rem 0 2rem;
+    }
+    .kh-title {
+      font-size: 2rem;
+    }
+    .kh-opt {
+      padding: 1rem;
+    }
+  }
+</style>
+
+<script is:inline>
+window.PRICING = {
+  base: {
+    akad: { 1: 1500000, 2: 2500000 },
+    akadResepsi: { 1: 3000000, 2: 4500000 },
+    prewedding: 1000000
+  },
+  coverage: {
+    foto: 0,
+    fotoVideo: 800000,
+    drone: 500000
+  },
+  addons: {
+    sameDayEdit: 750000,
+    cinematic: 1000000,
+    liveStreaming: 500000,
+    album: 400000
+  },
+  location: {
+    dalamKota: 0,
+    luarKota: 300000
+  }
+};
+window.WA_NUMBER = '6280000000000';
+
+window.labels = {
+  acara: { akad: 'Akad', akadResepsi: 'Akad + Resepsi', plusPrewedding: 'Akad + Resepsi + Prewedding' },
+  hari: { 1: '1 Hari', 2: '2 Hari' },
+  coverage: { foto: 'Foto', fotoVideo: 'Foto + Video', drone: 'Foto + Video + Drone' },
+  addons: { sameDayEdit: 'Same Day Edit', cinematic: 'Cinematic Video', liveStreaming: 'Live Streaming', album: 'Album Cetak' },
+  lokasi: { dalamKota: 'Dalam Kota Kediri', luarKota: 'Luar Kota Kediri' }
+};
+
+window.formatIDR = function(n) {
+  return 'Rp ' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+};
+
+window.calculatePricing = function(state) {
+  var total = 0;
+  if (state.acara === 'akad') total += PRICING.base.akad[state.hari] || 0;
+  else if (state.acara === 'akadResepsi') total += PRICING.base.akadResepsi[state.hari] || 0;
+  else if (state.acara === 'plusPrewedding') total += (PRICING.base.akadResepsi[state.hari] || 0) + PRICING.base.prewedding;
+
+  if (state.coverage === 'fotoVideo') total += PRICING.coverage.fotoVideo;
+  else if (state.coverage === 'drone') total += PRICING.coverage.fotoVideo + PRICING.coverage.drone;
+
+  if (state.addons) {
+    if (state.addons.sameDayEdit) total += PRICING.addons.sameDayEdit;
+    if (state.addons.cinematic) total += PRICING.addons.cinematic;
+    if (state.addons.liveStreaming) total += PRICING.addons.liveStreaming;
+    if (state.addons.album) total += PRICING.addons.album;
+  }
+
+  if (state.lokasi === 'luarKota') total += PRICING.location.luarKota;
+
+  var min = Math.round(total * 0.9);
+  var max = Math.round(total * 1.25);
+  return { min: min, max: max, total: total };
+};
+
+window.updateProgress = function(current, total) {
+  var bar = document.getElementById('progress-bar');
+  var num = document.getElementById('step-num');
+  if (bar) bar.style.width = ((current - 1) / (total - 1)) * 100 + '%';
+  if (num) num.textContent = current;
+  sessionStorage.setItem('kal_step', current);
+};
+
+document.addEventListener('htmx:afterSettle', function(evt) {
+  var path = evt.detail.requestConfig.path;
+  if (path && path.includes('step-')) {
+    document.getElementById('kalkulator-section').style.display = 'block';
+  }
+});
+</script>
