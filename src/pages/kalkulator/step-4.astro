@@ -1,3 +1,6 @@
+---
+const BASE = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+---
 <div class="kh-step active">
   <h2 class="kh-step-title">Tambahan Layanan</h2>
   <p class="kh-step-desc">Pilih layanan tambahan yang kamu butuhkan (bisa lebih dari satu)</p>
@@ -25,11 +28,11 @@
   </div>
   <div class="kh-nav">
     <button class="btn-secondary"
-      hx-get="/kalkulator/step-3"
+      hx-get={BASE + "kalkulator/step-3"}
       hx-target="#step-container"
       hx-swap="innerHTML">Kembali</button>
     <button class="btn-primary kh-next"
-      hx-get="/kalkulator/step-5"
+      hx-get={BASE + "kalkulator/step-5"}
       hx-target="#step-container"
       hx-swap="innerHTML">Lanjut</button>
   </div>
@@ -54,7 +57,6 @@
     var btn = e.target.closest('.kh-opt');
     if (!btn) return;
     btn.classList.toggle('selected');
-    // Save state
     var state = {};
     options.querySelectorAll('.kh-opt').forEach(function(el) {
       state[el.getAttribute('data-value')] = el.classList.contains('selected');

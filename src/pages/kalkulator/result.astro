@@ -1,3 +1,6 @@
+---
+const BASE = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+---
 <div class="kh-step active">
   <h2 class="kh-step-title">Estimasi Budget Kamu</h2>
 
@@ -31,7 +34,7 @@
 
   <div class="kh-nav">
     <button class="btn-secondary"
-      hx-get="/kalkulator/step-5"
+      hx-get={BASE + "kalkulator/step-5"}
       hx-target="#step-container"
       hx-swap="innerHTML">Hitung Ulang</button>
   </div>
@@ -72,7 +75,6 @@
 
   document.getElementById('result-breakdown').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-  // Lead form
   var nama = document.getElementById('lead-nama');
   var wa = document.getElementById('lead-wa');
   var kirim = document.getElementById('btn-kirim-wa');

@@ -1,3 +1,6 @@
+---
+const BASE = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+---
 <div class="kh-step active">
   <h2 class="kh-step-title">Pilih Jenis Acara</h2>
   <p class="kh-step-desc">Acara apa yang akan kamu dokumentasikan?</p>
@@ -19,7 +22,7 @@
     </button>
   </div>
   <button class="btn-primary kh-next"
-    hx-get="/kalkulator/step-2"
+    hx-get={BASE + "kalkulator/step-2"}
     hx-target="#step-container"
     hx-swap="innerHTML"
     disabled>Lanjut</button>
