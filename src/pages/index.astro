@@ -1,47 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 ---
 
 <Layout title="Akara Rahsa — Wedding Content Creator">
-  <!-- Navigation -->
-  <div id="navbar" style="position: sticky; top: 0; left: 0; right: 0; z-index: 100; width: 100%;">
-    <header style="max-width: var(--max-width-wide); margin: 0 auto; padding: 1.5rem var(--gutter); display: flex; align-items: center; justify-content: space-between;">
-      <span style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em;">
-        Akara Rahsa
-      </span>
-      <nav class="nav-desktop" style="display: flex; gap: 2rem;">
-        <a href="#tentang" class="nav-link">Tentang</a>
-        <a href="#layanan" class="nav-link">Layanan</a>
-        <a href="#portofolio" class="nav-link">Portofolio</a>
-        <a href="#kontak" class="nav-link">Kontak</a>
-      </nav>
-      <button id="hamburger" class="hamburger" aria-label="Open menu" style="display: none; background: none; border: none; cursor: pointer; padding: 0.5rem; color: var(--ink);">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-          <line x1="3" y1="7" x2="21" y2="7"/>
-          <line x1="3" y1="12" x2="21" y2="12"/>
-          <line x1="3" y1="17" x2="21" y2="17"/>
-        </svg>
-      </button>
-    </header>
-  </div>
-
-  <!-- Mobile Menu Drawer -->
-  <div id="mobile-menu" class="mobile-menu" style="position: fixed; top: 0; right: 0; bottom: 0; width: 280px; background: var(--ground); z-index: 200; padding: 2rem; display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);">
-    <button id="menu-close" aria-label="Close menu" style="background: none; border: none; cursor: pointer; padding: 0.5rem; color: var(--ink); align-self: flex-end;">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-        <line x1="5" y1="5" x2="19" y2="19"/>
-        <line x1="19" y1="5" x2="5" y2="19"/>
-      </svg>
-    </button>
-    <nav style="display: flex; flex-direction: column; gap: 2rem; margin-top: 3rem;">
-      <a href="#tentang" class="mobile-nav-link">Tentang</a>
-      <a href="#layanan" class="mobile-nav-link">Layanan</a>
-      <a href="#portofolio" class="mobile-nav-link">Portofolio</a>
-      <a href="#kontak" class="mobile-nav-link">Kontak</a>
-    </nav>
-  </div>
-  <div id="menu-backdrop" class="menu-backdrop" style="position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.3s;"></div>
-
   <main>
     <!-- ═══ HERO: Photo Grid ═══ -->
     <section style="padding: 0;">
@@ -87,7 +49,7 @@ import Layout from '../layouts/Layout.astro';
       </p>
 
       <div data-aos="fade-up" data-aos-duration="700" data-aos-delay="200">
-        <a href="#kontak" class="btn-primary">Jadwalkan Konsultasi</a>
+        <a href="https://wa.me/6285113658152" target="_blank" rel="noopener noreferrer" class="btn-primary">Jadwalkan Konsultasi</a>
       </div>
     </section>
 
@@ -201,19 +163,19 @@ import Layout from '../layouts/Layout.astro';
         </p>
 
         <div class="portofolio-grid" style="display: grid; grid-template-columns: 1fr 1fr;">
-          <div class="portfolio-card-wrapper"><a href="/portofolio/1" class="portfolio-card" style="height: 280px; display: flex; align-items: flex-end; padding: 2rem; color: #fff; position: relative;">
+          <div class="portfolio-card-wrapper"><a href={base + 'portofolio/1'} class="portfolio-card" style="height: 280px; display: flex; align-items: flex-end; padding: 2rem; color: #fff; position: relative;">
             <div class="portfolio-card-bg" style="background-image: url('https://images.unsplash.com/photo-1695266392136-1805eef542ac?w=800&q=85&fit=crop'); background-position: center;"></div>
             <span class="portfolio-card-label" style="font-family: var(--font-body); font-size: 0.8125rem; font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,0.3);">Rina &amp; Andi — Akad Nikah <span style="opacity: 0.7; margin-left: 0.5rem;">&rarr;</span></span>
           </a></div>
-          <div class="portfolio-card-wrapper"><a href="/portofolio/2" class="portfolio-card" style="height: 280px; display: flex; align-items: flex-end; padding: 2rem; color: #fff; position: relative;">
+          <div class="portfolio-card-wrapper"><a href={base + 'portofolio/2'} class="portfolio-card" style="height: 280px; display: flex; align-items: flex-end; padding: 2rem; color: #fff; position: relative;">
             <div class="portfolio-card-bg" style="background-image: url('https://images.unsplash.com/photo-1776266098665-2668b379bdff?w=800&q=85&fit=crop'); background-position: center;"></div>
             <span class="portfolio-card-label" style="font-family: var(--font-body); font-size: 0.8125rem; font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,0.3);">Sari &amp; Budi — Engagement <span style="opacity: 0.7; margin-left: 0.5rem;">&rarr;</span></span>
           </a></div>
-          <div class="portfolio-card-wrapper"><a href="/portofolio/3" class="portfolio-card" style="height: 280px; display: flex; align-items: flex-end; padding: 2rem; color: #fff; position: relative;">
+          <div class="portfolio-card-wrapper"><a href={base + 'portofolio/3'} class="portfolio-card" style="height: 280px; display: flex; align-items: flex-end; padding: 2rem; color: #fff; position: relative;">
             <div class="portfolio-card-bg" style="background-image: url('https://images.unsplash.com/photo-1767127419331-c77848620af6?w=800&q=85&fit=crop'); background-position: center;"></div>
             <span class="portfolio-card-label" style="font-family: var(--font-body); font-size: 0.8125rem; font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,0.3);">Dewi &amp; Yoga — Resepsi <span style="opacity: 0.7; margin-left: 0.5rem;">&rarr;</span></span>
           </a></div>
-          <div class="portfolio-card-wrapper"><a href="/portofolio/4" class="portfolio-card" style="height: 280px; display: flex; align-items: flex-end; padding: 2rem; color: #fff; position: relative;">
+          <div class="portfolio-card-wrapper"><a href={base + 'portofolio/4'} class="portfolio-card" style="height: 280px; display: flex; align-items: flex-end; padding: 2rem; color: #fff; position: relative;">
             <div class="portfolio-card-bg" style="background-image: url('https://images.unsplash.com/photo-1649289887707-4131abd76276?w=800&q=85&fit=crop'); background-position: center;"></div>
             <span class="portfolio-card-label" style="font-family: var(--font-body); font-size: 0.8125rem; font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,0.3);">Maya &amp; Alex — Prewedding <span style="opacity: 0.7; margin-left: 0.5rem;">&rarr;</span></span>
           </a></div>
@@ -269,7 +231,9 @@ import Layout from '../layouts/Layout.astro';
           Siap mengabadikan hari istimewa Anda? Hubungi kami untuk diskusi lebih lanjut.
         </p>
         <a
-          href="mailto:hello@akarahsa.com"
+          href="https://wa.me/6285113658152"
+          target="_blank"
+          rel="noopener noreferrer"
           class="btn-primary"
           style="display: inline-flex;"
         >
@@ -289,101 +253,4 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </div>
   </footer>
-
-  <style>
-    #navbar {
-      position: sticky;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      width: 100%;
-      background: transparent;
-      transition: background 0.3s, backdrop-filter 0.3s, border-bottom 0.3s;
-    }
-    #navbar.scrolled {
-      background: rgba(255,255,255,0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(0,0,0,0.06);
-    }
-
-    .hamburger {
-      display: none;
-    }
-    .hamburger:hover {
-      color: var(--rose);
-    }
-
-    .nav-link {
-      color: var(--ink);
-      text-decoration: none;
-      font-size: 0.9375rem;
-      transition: color 0.2s;
-    }
-    .nav-link:hover {
-      color: var(--rose);
-    }
-
-    .mobile-nav-link {
-      color: var(--ink);
-      text-decoration: none;
-      font-family: var(--font-display);
-      font-size: 1.5rem;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      transition: color 0.2s;
-    }
-    .mobile-nav-link:hover {
-      color: var(--rose);
-    }
-
-    @media (max-width: 768px) {
-      .nav-desktop {
-        display: none;
-      }
-      .hamburger {
-        display: flex;
-      }
-    }
-  </style>
-
-  <script>
-    const navbar = document.getElementById('navbar');
-    const hamburger = document.getElementById('hamburger');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const menuBackdrop = document.getElementById('menu-backdrop');
-    const menuClose = document.getElementById('menu-close');
-    const mobileLinks = document.querySelectorAll('.mobile-nav-link');
-
-    let ticking = false;
-    window.addEventListener('scroll', () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          navbar.classList.toggle('scrolled', window.scrollY > 60);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    });
-
-    function openMenu() {
-      mobileMenu.style.transform = 'translateX(0)';
-      menuBackdrop.style.opacity = '1';
-      menuBackdrop.style.pointerEvents = 'auto';
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeMenu() {
-      mobileMenu.style.transform = 'translateX(100%)';
-      menuBackdrop.style.opacity = '0';
-      menuBackdrop.style.pointerEvents = 'none';
-      document.body.style.overflow = '';
-    }
-
-    hamburger.addEventListener('click', openMenu);
-    menuClose.addEventListener('click', closeMenu);
-    menuBackdrop.addEventListener('click', closeMenu);
-    mobileLinks.forEach(link => link.addEventListener('click', closeMenu));
-  </script>
 </Layout>

@@ -4,5 +4,8 @@ import { defineConfig } from 'astro/config';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://mad-af.github.io',
-  base: '/akara-rahsa',
+  base: process.env.GH_PAGES ? '/akara-rahsa' : '/',
+  redirects: {
+    '/kalkulator': '/tools/budget',
+  },
 });

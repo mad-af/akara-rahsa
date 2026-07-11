@@ -1,0 +1,628 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+---
+
+<Layout title="Kalkulator Anggaran Pernikahan — Akara Rahsa" description="Susun anggaran pernikahanmu sendiri dengan kalkulator ini. Tersimpan otomatis di perangkat.">
+  <main class="budget-page">
+
+    <!-- Back link -->
+    <div style="margin-bottom: 2rem;">
+      <a href={base + 'tools'} style="font-size: 0.8125rem; color: var(--ink-secondary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; transition: color 0.2s;">
+        ← Kembali ke Tools
+      </a>
+    </div>
+
+    <!-- Hero -->
+    <div class="budget-hero">
+      <div class="eyebrow">Akara Rahsa</div>
+      <h1>Susun <em>Anggaran</em><br>Pernikahan Impianmu</h1>
+      <p>Isi sendiri perkiraan biaya tiap pos — kami bantu hitung totalnya, tunjukkan alokasinya, dan berikan gambaran umum. Datamu tersimpan otomatis di perangkat ini.</p>
+    </div>
+
+    <div class="budget-card">
+      <div class="section-label">Rincian Anggaran</div>
+      <div class="rows" id="rows"></div>
+      <button class="add-row" id="addRow">+ Tambah Pos Anggaran</button>
+    </div>
+
+    <div class="result-block">
+      <div class="total-line">
+        <div class="label">Total Estimasi Anggaran</div>
+        <div class="value" id="totalValue">Rp 0</div>
+      </div>
+
+      <div class="ring-wrap">
+        <svg id="ringSvg" width="240" height="240" viewBox="0 0 240 240"></svg>
+      </div>
+
+      <div class="section-label">Alokasi per Pos</div>
+      <div class="breakdown" id="breakdown"></div>
+
+      <div class="insight" id="insight"></div>
+      <div class="disclaimer">*Persentase acuan bersifat umum, bukan patokan mutlak — setiap pernikahan punya prioritas berbeda.</div>
+    </div>
+
+    <div class="cta-block">
+      <h2>Ingin Diskusikan Anggaran Dokumentasi?</h2>
+      <p>Kami senang membantu kamu menakar bagian dokumentasi dari total rencana anggaranmu — santai dan tanpa tekanan.</p>
+      <div class="cta-buttons">
+        <a href="#" class="btn-primary" id="waBtn" style="display: inline-flex; text-decoration: none;">Kirim Rincian ke WhatsApp</a>
+        <button class="btn-secondary" id="resetBtn">Reset Data</button>
+      </div>
+      <div class="saved-note" id="savedNote">Tersimpan otomatis</div>
+    </div>
+
+  </main>
+</Layout>
+
+<style is:global>
+  .budget-page {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 4rem var(--gutter) 8rem;
+  }
+
+  /* Hero */
+  .budget-hero {
+    text-align: center;
+    padding: 4rem 0 2rem;
+    margin-bottom: 2rem;
+  }
+  .budget-hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 2.75rem);
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--ink);
+    margin: 0.75rem 0 1rem;
+    letter-spacing: -0.02em;
+  }
+  .budget-hero h1 em {
+    font-style: italic;
+    color: var(--rose);
+  }
+  .budget-hero p {
+    font-size: 0.9375rem;
+    color: var(--ink-secondary);
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* Card wrapper (matches simpan form card) */
+  .budget-card {
+    background: #FCFCFC;
+    border: 1px solid rgba(0,0,0,0.06);
+    padding: 2.5rem;
+  }
+
+  /* Section labels */
+  .section-label {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--rose);
+    margin-bottom: 1.25rem;
+  }
+
+  /* Budget rows */
+  .rows { margin-bottom: 18px; }
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 160px 32px;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .row input[type=text] {
+    background: transparent;
+    border: none;
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 400;
+    padding: 6px 2px;
+    border-bottom: 1px solid transparent;
+    width: 100%;
+  }
+  .row input[type=text]:focus {
+    outline: none;
+    border-bottom: 1px solid var(--rose);
+  }
+  .row input[type=text]::placeholder {
+    color: rgba(0,0,0,0.25);
+  }
+  .amount-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .amount-field span {
+    color: var(--ink-secondary);
+    font-size: 0.8125rem;
+    margin-right: 6px;
+    flex-shrink: 0;
+  }
+  .row input[type=number] {
+    background: var(--ground);
+    border: 1px solid rgba(0,0,0,0.08);
+    color: var(--rose);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    padding: 8px 10px;
+    width: 100%;
+    text-align: right;
+    -moz-appearance: textfield;
+  }
+  .row input[type=number]::-webkit-outer-spin-button,
+  .row input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .row input[type=number]:focus {
+    outline: none;
+    border-color: var(--rose);
+  }
+  .row input[type=number]::placeholder {
+    color: rgba(0,0,0,0.25);
+  }
+  .remove-btn {
+    background: none;
+    border: none;
+    color: var(--ink-secondary);
+    font-size: 1.125rem;
+    cursor: pointer;
+    line-height: 1;
+    text-align: center;
+    transition: color 0.15s;
+    padding: 4px;
+  }
+  .remove-btn:hover { color: #c65b4a; }
+
+  .add-row {
+    width: 100%;
+    background: transparent;
+    border: 1px dashed rgba(0,0,0,0.15);
+    color: var(--rose);
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    padding: 12px;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .add-row:hover {
+    border-color: var(--rose);
+    color: var(--rose);
+  }
+
+  /* Result section */
+  .result-block {
+    margin-top: 2rem;
+    padding-top: 2rem;
+  }
+  .total-line {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  .total-line .label {
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-secondary);
+    margin-bottom: 0.5rem;
+  }
+  .total-line .value {
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 6vw, 3.25rem);
+    color: var(--rose);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  /* Ring gauge */
+  .ring-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+  }
+  .ring-wrap svg { overflow: visible; }
+  .ring-center-label {
+    fill: var(--ink-secondary);
+    text-anchor: middle;
+  }
+  .ring-label-top {
+    font-size: 11px;
+    letter-spacing: 2px;
+  }
+  .ring-label-count {
+    font-size: 20px;
+    font-family: var(--font-display);
+    fill: var(--rose);
+  }
+
+  /* Breakdown */
+  .breakdown { margin-bottom: 0.5rem; }
+  .bd-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .bd-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .bd-name {
+    flex: 1;
+    font-size: 0.875rem;
+    color: var(--ink);
+  }
+  .bd-pct {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    color: var(--rose);
+    width: 50px;
+    text-align: right;
+  }
+  .bd-amt {
+    font-size: 0.8125rem;
+    color: var(--ink-secondary);
+    width: 110px;
+    text-align: right;
+  }
+
+  /* Insight */
+  .insight {
+    margin-top: 1.75rem;
+    padding: 1.125rem 1.25rem;
+    background: rgba(232,180,184,0.04);
+    border-left: 2px solid var(--rose);
+    font-size: 0.875rem;
+    line-height: 1.7;
+    color: var(--ink);
+  }
+  .insight strong { color: var(--rose); font-weight: 600; }
+  .disclaimer {
+    font-size: 0.75rem;
+    color: var(--ink-secondary);
+    margin-top: 0.75rem;
+    font-style: italic;
+  }
+
+  /* CTA */
+  .cta-block {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(0,0,0,0.06);
+    text-align: center;
+  }
+  .cta-block h2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.625rem;
+    color: var(--ink);
+    margin: 0 0 0.75rem;
+    letter-spacing: -0.02em;
+  }
+  .cta-block p {
+    font-size: 0.875rem;
+    color: var(--ink-secondary);
+    max-width: 400px;
+    margin: 0 auto 1.5rem;
+    line-height: 1.6;
+  }
+  .cta-buttons {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .cta-block .btn-primary {
+    display: inline-flex;
+    text-decoration: none;
+  }
+  .cta-block .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--btn-height);
+    padding: 0 2rem;
+    border: 1px solid var(--ink);
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: transparent;
+    cursor: pointer;
+    transition: opacity 0.3s;
+  }
+  .cta-block .btn-secondary:hover { opacity: 0.5; }
+
+  .saved-note {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--rose);
+    margin-top: 1rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .saved-note.show { opacity: 1; }
+
+  @media (max-width: 480px) {
+    .row {
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+    .row input[type=text] {
+      grid-column: 1 / -1;
+    }
+    .amount-field {
+      grid-column: 1;
+    }
+    .remove-btn {
+      grid-column: 2;
+      justify-self: end;
+    }
+    .bd-amt { display: none; }
+    .budget-hero h1 { font-size: 1.75rem; }
+  }
+</style>
+
+<script is:inline>
+(function(){
+  // IndexedDB wrapper
+  window.storage = {
+    dbName: 'AkaraRahsaDB',
+    storeName: 'budget',
+    _db: null,
+    async _open() {
+      if (this._db) return this._db;
+      return new Promise((resolve, reject) => {
+        var req = indexedDB.open(this.dbName, 1);
+        req.onerror = () => reject(req.error);
+        req.onsuccess = () => { this._db = req.result; resolve(this._db); };
+        req.onupgradeneeded = (e) => {
+          e.target.result.createObjectStore(this.storeName);
+        };
+      });
+    },
+    async get(key) {
+      var db = await this._open();
+      return new Promise((resolve, reject) => {
+        var tx = db.transaction(this.storeName, 'readonly');
+        var store = tx.objectStore(this.storeName);
+        var req = store.get(key);
+        req.onerror = () => reject(req.error);
+        req.onsuccess = () => resolve(req.result ? req.result.value : null);
+      });
+    },
+    async set(key, value) {
+      var db = await this._open();
+      return new Promise((resolve, reject) => {
+        var tx = db.transaction(this.storeName, 'readwrite');
+        var store = tx.objectStore(this.storeName);
+        var req = store.put({ value: value }, key);
+        req.onerror = () => reject(req.error);
+        req.onsuccess = () => resolve();
+      });
+    }
+  };
+
+  const defaultRows = [
+    { name: "Venue & Dekorasi", amount: 0 },
+    { name: "Katering", amount: 0 },
+    { name: "Dokumentasi (Foto/Video)", amount: 0 },
+    { name: "Busana & Rias", amount: 0 },
+    { name: "Undangan & Souvenir", amount: 0 },
+    { name: "MC & Entertainment", amount: 0 },
+  ];
+
+  const palette = ["#E8B4B8","#D4A0A5","#C08C92","#E8C4C6","#F0D0D2","#D0A8AA","#E0B8BA","#C8989C"];
+
+  let rows = [];
+  const rowsEl = document.getElementById('rows');
+  const totalValueEl = document.getElementById('totalValue');
+  const breakdownEl = document.getElementById('breakdown');
+  const insightEl = document.getElementById('insight');
+  const ringSvg = document.getElementById('ringSvg');
+  const savedNote = document.getElementById('savedNote');
+  let saveTimeout;
+
+  const WA_NUMBER = '6280000000000';
+
+  function formatRupiah(n){
+    return "Rp " + Math.round(n).toLocaleString('id-ID');
+  }
+
+  function uid(){
+    return Math.random().toString(36).slice(2, 9);
+  }
+
+  async function loadData(){
+    try {
+      const res = await window.storage.get('wedding-budget-rows');
+      if (res && Array.isArray(res) && res.length) {
+        rows = res;
+        render();
+        return;
+      }
+    } catch(e) { /* no saved data */ }
+    rows = defaultRows.map(function(r) { return { id: uid(), name: r.name, amount: r.amount }; });
+    render();
+  }
+
+  function scheduleSave(){
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(async function() {
+      try {
+        await window.storage.set('wedding-budget-rows', rows);
+        savedNote.classList.add('show');
+        setTimeout(function() { savedNote.classList.remove('show'); }, 1500);
+      } catch(e) { console.error('Gagal menyimpan', e); }
+    }, 500);
+  }
+
+  function addRow(){
+    rows.push({ id: uid(), name: "", amount: 0 });
+    render();
+    scheduleSave();
+  }
+
+  function removeRow(id){
+    rows = rows.filter(function(r) { return r.id !== id; });
+    render();
+    scheduleSave();
+  }
+
+  function updateRow(id, field, value){
+    var row = rows.find(function(r) { return r.id === id; });
+    if (row) {
+      row[field] = field === 'amount' ? (parseFloat(value) || 0) : value;
+    }
+    computeAndRenderResults();
+    scheduleSave();
+  }
+
+  function escapeHtml(str){
+    var d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function renderRows(){
+    rowsEl.innerHTML = '';
+    rows.forEach(function(row) {
+      var div = document.createElement('div');
+      div.className = 'row';
+      div.innerHTML =
+        '<input type="text" placeholder="Nama pos anggaran" value="' + escapeHtml(row.name) + '" data-id="' + row.id + '" data-field="name">' +
+        '<div class="amount-field">' +
+          '<span>Rp</span>' +
+          '<input type="number" min="0" placeholder="0" value="' + (row.amount || '') + '" data-id="' + row.id + '" data-field="amount">' +
+        '</div>' +
+        '<button class="remove-btn" data-id="' + row.id + '" title="Hapus pos">&times;</button>';
+      rowsEl.appendChild(div);
+    });
+
+    rowsEl.querySelectorAll('input').forEach(function(input) {
+      input.addEventListener('input', function(e) {
+        updateRow(e.target.dataset.id, e.target.dataset.field, e.target.value);
+      });
+    });
+
+    rowsEl.querySelectorAll('.remove-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        removeRow(e.target.dataset.id);
+      });
+    });
+  }
+
+  function computeAndRenderResults(){
+    var total = rows.reduce(function(sum, r) { return sum + (r.amount || 0); }, 0);
+    totalValueEl.textContent = formatRupiah(total);
+
+    var active = rows.filter(function(r) { return r.amount > 0; });
+
+    renderRing(active, total);
+
+    breakdownEl.innerHTML = '';
+    if (active.length === 0) {
+      breakdownEl.innerHTML = '<div style="color:var(--ink-secondary); font-size:13px; text-align:center; padding:20px 0;">Isi angka pada pos di atas untuk melihat alokasi anggaranmu di sini.</div>';
+    } else {
+      active.slice().sort(function(a, b) { return b.amount - a.amount; }).forEach(function(row, i) {
+        var pct = total > 0 ? (row.amount / total * 100) : 0;
+        var color = palette[i % palette.length];
+        var div = document.createElement('div');
+        div.className = 'bd-row';
+        div.innerHTML =
+          '<div class="bd-dot" style="background:' + color + '"></div>' +
+          '<div class="bd-name">' + escapeHtml(row.name || '(Tanpa nama)') + '</div>' +
+          '<div class="bd-amt">' + formatRupiah(row.amount) + '</div>' +
+          '<div class="bd-pct">' + pct.toFixed(0) + '%</div>';
+        breakdownEl.appendChild(div);
+      });
+    }
+
+    // Insight on documentation allocation
+    var docRow = rows.find(function(r) { return r.name && r.name.toLowerCase().includes('dokumentasi'); });
+    if (total > 0 && docRow && docRow.amount > 0) {
+      var docPct = (docRow.amount / total * 100).toFixed(0);
+      var msg;
+      if (docPct < 10) {
+        msg = 'Dokumentasi kamu saat ini <strong>' + docPct + '%</strong> dari total anggaran. Ini sedikit di bawah kisaran umum (10–15%) — banyak pasangan menyesal justru di pos ini, karena hasilnya yang akan dikenang paling lama.';
+      } else if (docPct <= 15) {
+        msg = 'Dokumentasi kamu saat ini <strong>' + docPct + '%</strong> dari total anggaran — sudah berada di kisaran umum yang direkomendasikan (10–15%). Alokasi yang seimbang.';
+      } else {
+        msg = 'Dokumentasi kamu saat ini <strong>' + docPct + '%</strong> dari total anggaran — di atas kisaran umum (10–15%). Wajar kalau ini memang prioritas utama kalian.';
+      }
+      insightEl.innerHTML = msg;
+      insightEl.style.display = 'block';
+    } else if (total > 0) {
+      insightEl.innerHTML = 'Belum ada alokasi untuk pos <strong>Dokumentasi</strong>. Sebagai gambaran umum, banyak pasangan mengalokasikan sekitar <strong>10–15%</strong> dari total anggaran untuk foto &amp; video pernikahan.';
+      insightEl.style.display = 'block';
+    } else {
+      insightEl.style.display = 'none';
+    }
+
+    // WA button
+    var waBtn = document.getElementById('waBtn');
+    var message = "Halo! Saya baru menyusun rencana anggaran pernikahan saya:\n\n";
+    active.forEach(function(r) {
+      message += '- ' + (r.name || 'tanpa nama') + ': ' + formatRupiah(r.amount) + '\n';
+    });
+    message += '\nTotal: ' + formatRupiah(total) + '\n\nBoleh saya diskusikan bagian dokumentasinya? 🙏';
+    waBtn.href = 'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(message);
+  }
+
+  function renderRing(active, total){
+    var size = 240, cx = 120, cy = 120, r = 90, stroke = 22;
+    var circumference = 2 * Math.PI * r;
+    var svg = '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="' + stroke + '"/>';
+
+    if (total > 0 && active.length > 0) {
+      var offset = 0;
+      var sorted = active.slice().sort(function(a, b) { return b.amount - a.amount; });
+      sorted.forEach(function(row, i) {
+        var frac = row.amount / total;
+        var dash = frac * circumference;
+        var color = palette[i % palette.length];
+        svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="' + color + '" stroke-width="' + stroke + '" stroke-dasharray="' + dash + ' ' + (circumference - dash) + '" stroke-dashoffset="' + (-offset) + '" transform="rotate(-90 ' + cx + ' ' + cy + ')" stroke-linecap="butt" opacity="0.92"/>';
+        offset += dash;
+      });
+    }
+
+    svg += '<text x="' + cx + '" y="' + (cy - 6) + '" class="ring-center-label ring-label-top">ANGGARAN</text>';
+    svg += '<text x="' + cx + '" y="' + (cy + 14) + '" class="ring-center-label ring-label-count">' + active.length + ' Pos</text>';
+    ringSvg.innerHTML = svg;
+  }
+
+  function render(){
+    renderRows();
+    computeAndRenderResults();
+  }
+
+  document.getElementById('addRow').addEventListener('click', function() {
+    addRow();
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', async function() {
+    if (confirm('Hapus semua data anggaran yang sudah diisi?')) {
+      rows = defaultRows.map(function(r) { return { id: uid(), name: r.name, amount: r.amount }; });
+      render();
+      scheduleSave();
+    }
+  });
+
+  loadData();
+})();
+</script>

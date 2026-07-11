@@ -1,0 +1,321 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+---
+
+<Layout title="Planning Simpanan — Akara Rahsa" description="Hitung berapa yang perlu Anda tabung setiap bulan untuk mencapai budget pernikahan impian.">
+  <main style="max-width: 40rem; margin: 0 auto; padding: 4rem 1.5rem 8rem;">
+
+    <!-- ═══ BACK LINK ═══ -->
+    <div style="margin-bottom: 2rem;">
+      <a href={base + 'tools'} style="font-size: 0.8125rem; color: var(--ink-secondary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; transition: color 0.2s;">
+        ← Kembali ke Tools
+      </a>
+    </div>
+
+    <!-- ═══ HERO ═══ -->
+    <div style="text-align: center; margin-bottom: 3rem;">
+      <p class="eyebrow">Alat Tabungan</p>
+      <h1 style="font-family: var(--font-display); font-size: clamp(2rem, 4vw, 2.5rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 0.75rem; line-height: 1.2;">
+        Berapa yang Harus <em style="color: #E8B4B8; font-style: italic;">Ditabung</em>?
+      </h1>
+      <p style="font-size: 0.9375rem; color: var(--ink-secondary); line-height: 1.6; max-width: 360px; margin: 0 auto;">
+        Masukkan budget pernikahan impian dan tanggal hari H — kami bantu hitung alokasi tabunganmu.
+      </p>
+    </div>
+
+    <!-- ═══ FORM ═══ -->
+    <div id="simpan-form" style="background: #FCFCFC; border: 1px solid rgba(0,0,0,0.06); padding: 2.5rem; margin-bottom: 2rem;">
+      <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+
+        <!-- Target Budget -->
+        <div>
+          <label for="budget" style="display: block; font-size: 0.875rem; font-weight: 600; color: var(--ink); margin-bottom: 0.5rem;">Target Budget Pernikahan</label>
+          <div style="position: relative;">
+            <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); font-size: 0.9375rem; color: var(--ink-secondary);">Rp</span>
+            <input
+              type="text"
+              id="budget"
+              inputmode="numeric"
+              placeholder="50.000.000"
+              style="width: 100%; padding: 0.875rem 1rem 0.875rem 2.5rem; border: 1px solid rgba(0,0,0,0.1); background: var(--ground, #fff); font-family: var(--font-body); font-size: 1rem; outline: none; box-sizing: border-box; transition: border-color 0.2s;"
+            >
+          </div>
+          <p style="font-size: 0.75rem; color: var(--ink-secondary); margin-top: 0.375rem;">Gunakan titik sebagai pemisah ribuan, contoh: 50000000</p>
+        </div>
+
+        <!-- Tanggal Pernikahan -->
+        <div>
+          <label for="tanggal" style="display: block; font-size: 0.875rem; font-weight: 600; color: var(--ink); margin-bottom: 0.5rem;">Tanggal Pernikahan</label>
+          <input
+            type="date"
+            id="tanggal"
+            style="width: 100%; padding: 0.875rem 1rem; border: 1px solid rgba(0,0,0,0.1); background: var(--ground, #fff); font-family: var(--font-body); font-size: 1rem; outline: none; box-sizing: border-box; transition: border-color 0.2s;"
+          >
+        </div>
+
+        <!-- Sudah Punya -->
+        <div>
+          <label for="sudah" style="display: block; font-size: 0.875rem; font-weight: 600; color: var(--ink); margin-bottom: 0.5rem;">
+            Sudah Ada Tabungan <span style="font-weight: 400; color: var(--ink-secondary);">(opsional)</span>
+          </label>
+          <div style="position: relative;">
+            <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); font-size: 0.9375rem; color: var(--ink-secondary);">Rp</span>
+            <input
+              type="text"
+              id="sudah"
+              inputmode="numeric"
+              placeholder="0"
+              style="width: 100%; padding: 0.875rem 1rem 0.875rem 2.5rem; border: 1px solid rgba(0,0,0,0.1); background: var(--ground, #fff); font-family: var(--font-body); font-size: 1rem; outline: none; box-sizing: border-box; transition: border-color 0.2s;"
+            >
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ RESULTS ═══ -->
+    <div id="savedNote" style="text-align: center; font-size: 0.75rem; color: var(--rose); margin-top: -1rem; margin-bottom: 1rem; opacity: 0; transition: opacity 0.3s;">Tersimpan otomatis</div>
+
+    <div id="simpan-results" style="display: none;">
+      <div style="text-align: center; padding-bottom: 2rem; border-bottom: 1px solid rgba(0,0,0,0.06); margin-bottom: 1.5rem;">
+        <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-secondary); margin-bottom: 0.5rem;">Sisa yang Perlu Ditabung</p>
+        <p id="result-sisa" style="font-family: var(--font-display); font-size: 2.25rem; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; line-height: 1;"></p>
+      </div>
+
+      <!-- Sisa Waktu -->
+      <div id="waktu-grid" class="saving-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.06); margin-bottom: 0.75rem;">
+        <div style="background: var(--ground); padding: 1.25rem 1.5rem; text-align: center;">
+          <p style="font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-secondary); margin-bottom: 0.25rem;">Sisa Bulan</p>
+          <p id="result-bulan-sisa" style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; line-height: 1;"></p>
+        </div>
+        <div style="background: var(--ground); padding: 1.25rem 1.5rem; text-align: center;">
+          <p style="font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-secondary); margin-bottom: 0.25rem;">Hari</p>
+          <p id="result-hari-sisa" style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; line-height: 1;"></p>
+        </div>
+      </div>
+
+      <!-- Tabungan per unit -->
+      <div class="saving-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.06); margin-bottom: 2rem;">
+        <div style="background: var(--ground); padding: 1.5rem; text-align: center;">
+          <p style="font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-secondary); margin-bottom: 0.5rem;">Per Bulan</p>
+          <p id="result-bulanan" style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; color: var(--ink); letter-spacing: -0.01em;"></p>
+        </div>
+        <div style="background: var(--ground); padding: 1.5rem; text-align: center;">
+          <p style="font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-secondary); margin-bottom: 0.5rem;">Per Minggu</p>
+          <p id="result-mingguan" style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; color: var(--ink); letter-spacing: -0.01em;"></p>
+        </div>
+        <div style="background: var(--ground); padding: 1.5rem; text-align: center;">
+          <p style="font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-secondary); margin-bottom: 0.5rem;">Per Hari</p>
+          <p id="result-harian" style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; color: var(--ink); letter-spacing: -0.01em;"></p>
+        </div>
+      </div>
+
+      <div style="background: rgba(232,180,184,0.08); border: 1px solid rgba(232,180,184,0.2); padding: 1.25rem 1.5rem; margin-bottom: 2rem; display: flex; gap: 1rem; align-items: flex-start;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E8B4B8" stroke-width="1.5" stroke-linecap="round" style="flex-shrink: 0; margin-top: 2px;">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <p id="result-note" style="font-size: 0.8125rem; color: var(--ink-secondary); line-height: 1.5;"></p>
+      </div>
+
+      <!-- CTA -->
+      <div style="text-align: center;">
+        <p style="font-size: 0.875rem; color: var(--ink-secondary); margin-bottom: 1rem;">Siap memulai perencanaan?</p>
+        <a href={base + '#kontak'} class="btn-primary" style="display: inline-flex; text-decoration: none;">Konsultasi Gratis</a>
+      </div>
+    </div>
+
+  </main>
+</Layout>
+
+<style>
+  input:focus {
+    border-color: #E8B4B8 !important;
+  }
+
+  h1 em {
+    color: #E8B4B8;
+    font-style: italic;
+  }
+
+  #savedNote.show {
+    opacity: 1 !important;
+  }
+
+  @media (max-width: 480px) {
+    .saving-grid {
+      grid-template-columns: 1fr !important;
+      gap: 0 !important;
+    }
+  }
+</style>
+
+<script is:inline>
+(function() {
+  // IndexedDB wrapper
+  window.storage = {
+    dbName: 'AkaraRahsaDB',
+    storeName: 'simpan',
+    _db: null,
+    async _open() {
+      if (this._db) return this._db;
+      return new Promise((resolve, reject) => {
+        var req = indexedDB.open(this.dbName, 1);
+        req.onerror = () => reject(req.error);
+        req.onsuccess = () => { this._db = req.result; resolve(this._db); };
+        req.onupgradeneeded = (e) => {
+          e.target.result.createObjectStore(this.storeName);
+        };
+      });
+    },
+    async get(key) {
+      var db = await this._open();
+      return new Promise((resolve, reject) => {
+        var tx = db.transaction(this.storeName, 'readonly');
+        var store = tx.objectStore(this.storeName);
+        var req = store.get(key);
+        req.onerror = () => reject(req.error);
+        req.onsuccess = () => resolve(req.result ? req.result.value : null);
+      });
+    },
+    async set(key, value) {
+      var db = await this._open();
+      return new Promise((resolve, reject) => {
+        var tx = db.transaction(this.storeName, 'readwrite');
+        var store = tx.objectStore(this.storeName);
+        var req = store.put({ value: value }, key);
+        req.onerror = () => reject(req.error);
+        req.onsuccess = () => resolve();
+      });
+    }
+  };
+
+  var budgetInput = document.getElementById('budget');
+  var tanggalInput = document.getElementById('tanggal');
+  var sudahInput = document.getElementById('sudah');
+  var resultsBox = document.getElementById('simpan-results');
+  var savedNote = document.getElementById('savedNote');
+  var saveTimeout;
+
+  function parseNum(str) {
+    if (!str) return 0;
+    return parseInt(str.replace(/\D/g, ''), 10) || 0;
+  }
+
+  function formatIDR(n) {
+    return 'Rp ' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+
+  function monthsBetween(d1, d2) {
+    var date1 = new Date(d1);
+    var date2 = new Date(d2);
+    var months = (date2.getFullYear() - date1.getFullYear()) * 12;
+    months -= date1.getMonth();
+    months += date2.getMonth();
+    if (date2.getDate() < date1.getDate()) months--;
+    return Math.max(0, months);
+  }
+
+  function compute() {
+    var budget = parseNum(budgetInput.value);
+    var tanggal = tanggalInput.value;
+    var sudah = parseNum(sudahInput.value);
+
+    if (!budget || !tanggal) {
+      resultsBox.style.display = 'none';
+      return;
+    }
+
+    var now = new Date();
+    var weddingDate = new Date(tanggal + 'T00:00:00');
+    var bulanSisa = monthsBetween(now, weddingDate);
+
+    if (bulanSisa < 1) {
+      resultsBox.style.display = 'block';
+      document.getElementById('result-sisa').textContent = '—';
+      document.getElementById('result-bulan-sisa').textContent = '—';
+      document.getElementById('result-hari-sisa').textContent = '—';
+      document.getElementById('result-bulanan').textContent = '—';
+      document.getElementById('result-mingguan').textContent = '—';
+      document.getElementById('result-harian').textContent = '—';
+      document.getElementById('result-note').textContent = 'Tanggal pernikahan sudah dekat atau kurang dari sebulan. Hubungi kami untuk diskusi langsung.';
+      return;
+    }
+
+    var sisa = Math.max(0, budget - sudah);
+    var perBulan = Math.ceil(sisa / bulanSisa);
+    var perMinggu = Math.ceil(perBulan / 4);
+    var perHari = Math.ceil(perBulan / 30);
+
+    var daysInWeddingMonth = new Date(weddingDate.getFullYear(), weddingDate.getMonth() + 1, 0).getDate();
+    var hariSisa = weddingDate.getDate() - now.getDate();
+    if (hariSisa < 0) hariSisa += daysInWeddingMonth;
+
+    resultsBox.style.display = 'block';
+    document.getElementById('result-sisa').textContent = formatIDR(sisa);
+    document.getElementById('result-bulan-sisa').textContent = bulanSisa + ' bulan';
+    document.getElementById('result-hari-sisa').textContent = hariSisa + ' hari';
+    document.getElementById('result-bulanan').textContent = formatIDR(perBulan);
+    document.getElementById('result-mingguan').textContent = formatIDR(perMinggu);
+    document.getElementById('result-harian').textContent = formatIDR(perHari);
+
+    var noteText = 'Dengan waktu tersisa ' + bulanSisa + ' bulan ' + hariSisa + ' hari, Anda perlu menyisihkan ';
+    noteText += formatIDR(perBulan) + ' per bulan, ';
+    noteText += formatIDR(perMinggu) + ' per minggu, atau ';
+    noteText += formatIDR(perHari) + ' per hari.';
+    if (sudah > 0) {
+      noteText += ' Tabungan yang sudah ada sebesar ' + formatIDR(sudah) + ' telah dikurangkan dari total.';
+    }
+    document.getElementById('result-note').textContent = noteText;
+  }
+
+  function scheduleSave() {
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(async function() {
+      try {
+        await window.storage.set('wedding-simpan-data', {
+          budget: budgetInput.value,
+          tanggal: tanggalInput.value,
+          sudah: sudahInput.value,
+        });
+        savedNote.classList.add('show');
+        setTimeout(function() { savedNote.classList.remove('show'); }, 1500);
+      } catch(e) { console.error('Gagal menyimpan', e); }
+    }, 500);
+  }
+
+  async function loadData() {
+    try {
+      var data = await window.storage.get('wedding-simpan-data');
+      if (data) {
+        if (data.budget) { budgetInput.value = data.budget; }
+        if (data.tanggal) { tanggalInput.value = data.tanggal; }
+        if (data.sudah) { sudahInput.value = data.sudah; }
+        compute();
+        scheduleSave();
+      }
+    } catch(e) { /* no saved data */ }
+  }
+
+  function formatInputAsIDR(input) {
+    var cursorPos = input.selectionStart;
+    var oldLen = input.value.length;
+    var raw = parseNum(input.value);
+    var formatted = raw ? raw.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
+    input.value = formatted;
+    var newLen = input.value.length;
+    var newPos = Math.max(0, cursorPos + (newLen - oldLen));
+    input.setSelectionRange(newPos, newPos);
+  }
+
+  budgetInput.addEventListener('input', function() { formatInputAsIDR(budgetInput); compute(); scheduleSave(); });
+  sudahInput.addEventListener('input', function() { formatInputAsIDR(sudahInput); compute(); scheduleSave(); });
+  tanggalInput.addEventListener('input', function() { compute(); scheduleSave(); });
+
+  // Set minimum date to today
+  var today = new Date().toISOString().split('T')[0];
+  tanggalInput.setAttribute('min', today);
+
+  loadData();
+})();
+</script>
