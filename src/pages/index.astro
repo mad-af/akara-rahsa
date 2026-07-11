@@ -36,7 +36,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
         style="font-family: var(--font-display); font-size: clamp(2.5rem, 5vw, 3.75rem); font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 1.5rem; max-width: 800px; color: var(--ink);"
       >
         <span class="hero-line"><span>Cerita Pernikahan yang</span></span>
-        <span class="hero-line"><span>Abadi dalam Setiap Bingkai</span></span>
+        <span class="hero-line"><span><em>Abadi</em> dalam Setiap Bingkai</span></span>
       </h1>
 
       <p
@@ -253,4 +253,11 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
       </div>
     </div>
   </footer>
+
+  <style is:global>
+    h1 em {
+      color: #E8B4B8;
+      font-style: italic;
+    }
+  </style>
 </Layout>
