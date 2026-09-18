@@ -414,6 +414,9 @@ const href = (h: string) => (h.startsWith('#') ? url() + h : url(h));
       lastFocus = document.activeElement as HTMLElement;
       panel.hidden = false;
       root.setAttribute('data-open', '');
+      // Flagged on <html> so unrelated fixed elements (the WhatsApp shortcut)
+      // can stand down without either component importing the other.
+      document.documentElement.setAttribute('data-menu-open', '');
 
       // Compensate for the vanishing scrollbar so the page does not jump.
       const gap = window.innerWidth - document.documentElement.clientWidth;
@@ -450,6 +453,7 @@ const href = (h: string) => (h.startsWith('#') ? url() + h : url(h));
       toggle.focus();
     } else {
       root.removeAttribute('data-open');
+      document.documentElement.removeAttribute('data-menu-open');
       document.removeEventListener('keydown', onKeydown);
       outside().forEach((el) => el.removeAttribute('inert'));
       document.body.style.overflow = '';

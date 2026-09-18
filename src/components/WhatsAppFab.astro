@@ -1,0 +1,144 @@
+---
+/**
+ * Persistent WhatsApp shortcut, bottom right.
+ *
+ * WhatsApp is the channel this audience actually uses, so it earns a standing
+ * affordance rather than only living inside page CTAs.
+ *
+ * Two decisions worth stating, because both look like mistakes otherwise:
+ *
+ * 1. It is gold, not WhatsApp green. The colour lock allows exactly one accent,
+ *    and dropping #25D366 onto a near-black editorial page reads as a sticker
+ *    someone pasted on. The glyph is recognisable by shape on its own.
+ * 2. It is square. The shape lock is radius 0 for every rectangular surface;
+ *    the circle is reserved for the donut and its legend dots. A round button
+ *    here would be the only pill-shaped thing on the site.
+ *
+ * It also stays hidden while the hero is on screen. The hero already carries
+ * "Jadwalkan Konsultasi", which is the same action, and two controls competing
+ * for one intent in the same viewport is worse than none.
+ */
+import Icon from './Icon.astro';
+import { links } from '../config/site';
+---
+
+<a
+  id="wa-fab"
+  class="fab"
+  href={links.whatsapp}
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label="Hubungi kami lewat WhatsApp"
+  data-hidden
+>
+  <span class="fab-label" aria-hidden="true">Chat WhatsApp</span>
+  <span class="fab-box">
+    <Icon name="brand-whatsapp" size={24} stroke={1.6} />
+  </span>
+</a>
+
+<style>
+  .fab {
+    position: fixed;
+    z-index: 60;
+    right: 1.25rem;
+    bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    /* Entrance and exit are transform and opacity only. */
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @media (min-width: 768px) {
+    .fab {
+      right: 2rem;
+      bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+    }
+  }
+
+  /* Out of the way until the hero's own CTA has left the viewport, and out of
+     the way entirely while the navigation overlay is open. */
+  .fab[data-hidden],
+  :global(html[data-menu-open]) .fab {
+    opacity: 0;
+    transform: translateY(12px);
+    pointer-events: none;
+  }
+
+  .fab-box {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+    background-color: var(--color-gold);
+    color: var(--color-ground);
+    /* Lifts it off whatever photography happens to be behind it. */
+    box-shadow: 0 6px 24px rgb(0 0 0 / 0.45);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  .fab:hover .fab-box {
+    background-color: #ebc357;
+  }
+  .fab:active .fab-box {
+    transform: translateY(1px);
+  }
+
+  /* The label rides in from the right on hover. Sliding it rather than growing
+     the button keeps this on transform, never on width. */
+  .fab-label {
+    display: none;
+    padding: 0.5rem 0.875rem;
+    background-color: var(--color-ground-lift);
+    border: 1px solid var(--color-line);
+    color: var(--color-paper);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateX(8px);
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @media (min-width: 768px) and (hover: hover) {
+    .fab-label {
+      display: block;
+    }
+    .fab:hover .fab-label,
+    .fab:focus-visible .fab-label {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fab,
+    .fab-box,
+    .fab-label {
+      transition-duration: 0.01ms;
+    }
+  }
+</style>
+
+<script>
+  const fab = document.getElementById('wa-fab');
+  const hero = document.querySelector('.hero');
+
+  if (fab) {
+    if (!hero) {
+      // Pages without a hero have no competing CTA, so it is available at once.
+      fab.removeAttribute('data-hidden');
+    } else {
+      // IntersectionObserver rather than a scroll listener, which would run on
+      // every frame.
+      // Justification: hierarchy. The shortcut only appears once the hero's own
+      // "Jadwalkan Konsultasi" has scrolled away, so the two never compete for
+      // the same action in one viewport.
+      new IntersectionObserver(
+        ([entry]) => fab.toggleAttribute('data-hidden', entry.isIntersecting),
+        { threshold: 0.35 },
+      ).observe(hero);
+    }
+  }
+</script>

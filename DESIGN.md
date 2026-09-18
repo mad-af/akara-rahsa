@@ -208,6 +208,25 @@ focus returned to the trigger afterwards. The trigger's label is visually hidden
 on narrow screens rather than `display: none`, because the latter strips it from
 the name computation and leaves an unnamed button.
 
+### The WhatsApp shortcut
+
+WhatsApp is the channel this audience actually uses, so it gets a standing
+affordance in the bottom right rather than only living inside page CTAs. Two
+decisions there look like mistakes unless they are written down:
+
+- **It is gold, not WhatsApp green.** The colour lock allows one accent. Dropping
+  `#25D366` onto a near-black editorial page reads as a sticker, and the glyph is
+  recognisable by shape without it.
+- **It is square.** The shape lock is radius 0 for rectangular surfaces, and the
+  circle is reserved for the donut. A round button would be the only pill on the
+  site.
+
+It stays hidden while the hero is on screen, because the hero already carries
+"Jadwalkan Konsultasi" and two controls competing for one intent in a single
+viewport is worse than none. It also stands down while the navigation overlay is
+open, coordinated through a `data-menu-open` flag on `<html>` so neither
+component has to import the other.
+
 ---
 
 ## 7. Imagery
