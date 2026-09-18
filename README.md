@@ -49,11 +49,22 @@ Everything visual is a labelled placeholder. Search for `TODO:` to find them all
 
 These are done, and are generated rather than drawn by hand.
 
-`public/favicon.svg` is the wordmark's "A" knocked out of a gold tile. The letter
-is Playfair Display at weight 900 **converted to outlines**, which matters: a
-favicon renders isolated from the page, so a `<text>` element cannot reach the
-webfont and silently falls back to a system serif. The weight and optical size
-were chosen by rendering at 16px and comparing, not by eye at full size.
+`public/favicon.svg` is an "A" knocked out of a gold tile, set in **Noto Sans at
+weight 800 and converted to outlines**.
+
+Two things about that are deliberate and should not be undone:
+
+- It is not a `<text>` element. A favicon renders isolated from the page, so it
+  can never reach the webfont, and a text element silently falls back to whatever
+  serif the system happens to have.
+- It is **not** set in Playfair, even though Playfair is the display face
+  everywhere else. Playfair is a didone: at 16px its thin left stroke and
+  hairline crossbar dissolve completely and the letter reads as a lopsided blob.
+  The first version of this icon made exactly that mistake. Noto Sans has even
+  stroke weight, so the crossbar and the counter both survive.
+
+Weight and optical size were picked by rendering a grid of candidates at true
+16px and comparing, not judged at display size.
 
 The set is `favicon.svg`, `favicon.ico` (real 16, 32 and 48 frames, not one
 scaled), `apple-touch-icon.png` (180, opaque and full-bleed because iOS applies
