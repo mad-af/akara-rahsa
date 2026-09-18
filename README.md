@@ -70,44 +70,53 @@ Everything visual is a labelled placeholder. Search for `TODO:` to find them all
 
 ## Icons and share image
 
-These are done, and are generated rather than drawn by hand.
+These are generated rather than drawn by hand. One command rebuilds the whole
+set:
 
-`public/favicon.svg` is the wordmark's "A" knocked out of a gold tile, set in
-**Playfair Display at weight 900 and converted to outlines**.
+```bash
+bun run icons
+```
 
-Two things about it are deliberate and should not be undone:
+That runs `scripts/generate_icons.py` (pulls the letterforms out of the font and
+writes `public/favicon.svg`), then `scripts/render_icons.mjs` (rasterises each
+size in Chromium via Playwright), then the packing step for `favicon.ico`.
+
+The mark is an **"AR" monogram set in Playfair Display at weight 900, converted
+to outlines**, knocked out of a gold tile. The pair is kerned with the font's own
+A/R value rather than set loose.
+
+Four things about it are deliberate and should not be undone:
 
 - **It is not a `<text>` element.** A favicon renders isolated from the page, so
   it can never reach the webfont, and a text element silently falls back to
   whatever serif the system happens to have.
-- **The stroke on the path is doing real work, not decoration.** Playfair is a
-  didone, so its left diagonal and crossbar are hairlines. Rendered flat they
-  fall below one device pixel at small sizes and disappear, leaving a lopsided
-  blob rather than a letter. Stroking the path in its own colour thickens every
-  contour uniformly, lifting those hairlines back over a pixel without altering
-  the letterform. It is the same correction a type designer makes when cutting an
-  optical size for small text.
 
-**The raster sizes are generated, not scaled from one file**, because each one
-carries a different amount of that compensation: strongest at 16px, almost none
-at 512px where Playfair's hairlines are an asset rather than a liability. If you
-regenerate these, keep that per-size ramp or the small sizes will go muddy again.
+- **The stroke on the path is optical compensation, not decoration.** Playfair is
+  a didone, so its hairlines fall below a device pixel at small sizes and
+  disappear, leaving a lopsided blob rather than a letter. Stroking each contour
+  in its own colour thickens it uniformly, lifting the hairline back over a pixel
+  without altering the letterform.
 
-Values were picked by rendering candidates at true 16px and comparing, not judged
-at display size.
+- **The compensation is expressed in device pixels, then converted per size.**
+  That is the unit that actually governs the problem: a hairline vanishes because
+  of how many pixels it lands on, which is a property of the output size, not of
+  the artwork. `COMPENSATION_PX` in the generator holds the ramp.
 
-The set is `favicon.svg`, `favicon.ico` (real 16, 32 and 48 frames, not one
-scaled), `apple-touch-icon.png` (180, opaque and full-bleed because iOS applies
-its own rounded mask), `icon-192.png`, `icon-512.png` and `site.webmanifest`.
+- **There is a ceiling as well as a floor, and it is tight.** Two letters in the
+  tile are half the height the old single "A" was, so their counters are one or
+  two pixels at 16px. Above roughly 0.35px of compensation those counters close
+  and the mark becomes a blob — the opposite of the failure the stroke exists to
+  prevent. The values in the ramp were measured against renders at every size by
+  counting enclosed background pixels, not eyeballed. If you retune it, check
+  both ends.
 
-`public/og-default.jpg` is 1200x630, type only: wordmark, gold rule, tagline. It
-carries no photograph on purpose, so it does not go stale when the placeholder
-photography is replaced. It stays legible down to about 200px wide, which is
-roughly a WhatsApp chat preview.
+**The raster sizes are generated, not scaled from one master**, because each
+carries a different amount of that compensation. `favicon.ico` is packed by hand
+for the same reason: Pillow's ICO writer rescales a single image to every size,
+which would throw the ramp away.
 
-To regenerate after a brand change, the inputs are the Playfair woff2 in
-`node_modules/@fontsource-variable/playfair-display/` and the tokens in
-`src/styles/global.css`.
+`public/og-default.jpg` is the full wordmark, not the monogram, and is unaffected
+by any of this.
 
 ## Layout of the source
 

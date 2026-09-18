@@ -7,3 +7,7 @@ node_modules/
 .DS_Store
 npm-debug.log*
 .wrangler/
+
+# Intermediates from scripts/generate_icons.py; the outputs in public/ are committed.
+scripts/.icon-sources.json
+scripts/.ico-*.png

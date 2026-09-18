@@ -11,7 +11,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "deploy": "astro build && wrangler deploy"
+    "deploy": "astro build && wrangler deploy",
+    "icons": "python3 scripts/generate_icons.py && bun scripts/render_icons.mjs && python3 scripts/generate_icons.py --ico"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
@@ -25,6 +26,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@tabler/icons": "^3.46.0",
+    "playwright": "^1.63.0",
     "typescript": "6.0.3",
     "wrangler": "^4.134.0"
   }
