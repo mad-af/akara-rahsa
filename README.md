@@ -37,6 +37,22 @@ the same build works anywhere. Copy `.env.example` to `.env`:
 If `GOOGLE_FORM_SCRIPT_URL` is unset the contact form says so instead of
 silently pretending to send.
 
+## Cloudflare Workers
+
+`wrangler.jsonc` is committed, and it has to stay that way. Without it Workers
+Builds runs a non-interactive setup that injects the `@astrojs/cloudflare`
+adapter and then expects `IMAGES` and `SESSION` bindings. Every route here is
+prerendered, so there is no server entry and no adapter to install — the config
+just points at `dist/`.
+
+```bash
+bun run deploy   # astro build && wrangler deploy
+```
+
+In the Workers Builds settings use `bun run build` as the build command and
+`bunx wrangler deploy` as the deploy command, and set `SITE_URL` there if the
+canonical origin ever differs from the default in `astro.config.mjs`.
+
 ## What still needs you
 
 Everything visual is a labelled placeholder. Search for `TODO:` to find them all.

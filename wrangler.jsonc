@@ -1,0 +1,18 @@
+{
+  // Committed on purpose. Without it Cloudflare Workers Builds runs its own
+  // non-interactive setup, injects @astrojs/cloudflare, and then demands IMAGES
+  // and SESSION bindings that a static site has no use for.
+  //
+  // This site is fully static: every route in src/pages/ is prerendered at build
+  // time, so there is no server entry. No "main", just the assets in dist/.
+  "name": "akara-rahsa",
+  "compatibility_date": "2026-09-18",
+  "assets": {
+    "directory": "./dist",
+    // Every internal link the site emits is slash-less ("/contact", not
+    // "/contact/"), so serve those directly and redirect the slashed form in.
+    // auto-trailing-slash would do the reverse and put a 307 on every click.
+    "html_handling": "drop-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}
