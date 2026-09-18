@@ -1,0 +1,80 @@
+---
+import Wordmark from './Wordmark.astro';
+import { site, links, url } from '../config/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer>
+  <div class="shell inner">
+    <div class="left">
+      <Wordmark />
+      <p class="tag">{site.tagline}</p>
+    </div>
+
+    <nav class="social" aria-label="Kanal lain">
+      <a href={links.instagram} target="_blank" rel="noopener noreferrer">Instagram</a>
+      <a href={links.tiktok} target="_blank" rel="noopener noreferrer">TikTok</a>
+      <a href={links.whatsapp} target="_blank" rel="noopener noreferrer">WhatsApp</a>
+      <a href={links.email}>Email</a>
+      <a href={url('links')}>Semua tautan</a>
+    </nav>
+  </div>
+
+  <div class="shell base">
+    <span>&copy; {year} {site.name}</span>
+    <span>Berbasis di Indonesia</span>
+  </div>
+</footer>
+
+<style>
+  footer {
+    border-top: 1px solid var(--color-line-soft);
+    background-color: var(--color-ground);
+  }
+  .inner {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    padding-block: 4rem 3rem;
+  }
+  @media (min-width: 768px) {
+    .inner {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+  }
+  .tag {
+    margin-top: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--color-paper-dim);
+  }
+  .social {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem 2.5rem;
+    font-size: 0.8125rem;
+    color: var(--color-paper-dim);
+  }
+  @media (min-width: 768px) {
+    .social {
+      grid-template-columns: repeat(2, auto);
+    }
+  }
+  .social a {
+    transition: color 0.25s ease;
+  }
+  .social a:hover {
+    color: var(--color-gold);
+  }
+  .base {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 1.5rem;
+    border-top: 1px solid var(--color-line-soft);
+    font-size: 0.75rem;
+    color: var(--color-paper-faint);
+  }
+</style>

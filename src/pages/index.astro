@@ -1,0 +1,615 @@
+---
+import Layout from '../layouts/Layout.astro';
+import HeroVideo from '../components/HeroVideo.astro';
+import ServiceStack from '../components/ServiceStack.astro';
+import ReelPan from '../components/ReelPan.astro';
+import Icon from '../components/Icon.astro';
+import { links, url, site } from '../config/site';
+import { packages, juta } from '../config/pricing';
+import { testimonials } from '../config/portfolio';
+
+// Placeholder showreel: Pexels stock, trimmed to a 12s palindrome so the loop
+// point is seamless, colour-graded down to sit on the near-black ground, and
+// self-hosted rather than hot-linked so it cannot rot.
+// TODO: replace all three files with your own footage. public/video/README.md
+//       has the encode recipe and the Cloudflare Stream / Vimeo swap path.
+const heroPoster = url('video/hero-poster.jpg');
+const heroSources = [
+  { src: url('video/hero.webm'), type: 'video/webm' },
+  { src: url('video/hero.mp4'), type: 'video/mp4' },
+];
+
+// TODO: real photograph for the featured package tile, 1200x1400.
+const featuredStill =
+  'https://images.pexels.com/photos/18004224/pexels-photo-18004224.jpeg?auto=compress&cs=tinysrgb&w=1200';
+---
+
+<Layout bleed title={`${site.name}, ${site.tagline}`}>
+  <!-- ════ 1. HERO ════ Full-bleed media overlay -->
+  <section class="hero">
+    <HeroVideo
+      poster={heroPoster}
+      sources={heroSources}
+      alt="Cuplikan film pernikahan karya Akara Rahsa"
+    />
+
+    <div class="hero-copy shell">
+      <p class="eyebrow" data-hero-fade>{site.tagline}</p>
+
+      <h1 class="display hero-title" data-hero-title>
+        Cerita pernikahan yang <em>abadi</em> dalam setiap bingkai
+      </h1>
+
+      <p class="hero-sub" data-hero-fade>
+        Kami mengabadikan hari istimewa Anda dengan pendekatan editorial yang
+        tenang dan penuh perhatian.
+      </p>
+
+      <div class="hero-cta" data-hero-fade>
+        <a href={links.whatsapp} target="_blank" rel="noopener noreferrer" class="btn-primary">
+          Jadwalkan Konsultasi
+        </a>
+        <a href="#portofolio" class="btn-secondary">Lihat Karya</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 2. TENTANG ════ Editorial manifesto, single column -->
+  <section id="tentang" class="manifesto">
+    <div class="shell">
+      <p class="display statement" data-statement>
+        Kami percaya setiap pernikahan punya cerita yang layak dibingkai dengan
+        cara paling jujur. Kami hadir bukan sekadar merekam, tetapi merangkai
+        momen menjadi narasi visual yang bertahan.
+      </p>
+      <p class="statement-note" data-reveal>
+        Berbasis di Indonesia, kami melayani calon pengantin dan vendor pernikahan
+        yang menghargai keindahan dalam kesederhanaan. Pendekatan kami tenang,
+        jujur, dan penuh perhatian terhadap detail.
+      </p>
+    </div>
+  </section>
+
+  <!-- ════ 3. LAYANAN ════ Pinned sticky-stack -->
+  <ServiceStack />
+
+  <!-- ════ 4. PORTOFOLIO ════ Pinned horizontal pan -->
+  <ReelPan />
+
+  <!-- ════ 5. TESTIMONI ════ Two-column quotes -->
+  <section class="voices">
+    <div class="shell">
+      <h2 class="display voices-heading" data-reveal>Kata mereka</h2>
+      <div class="voices-grid">
+        {testimonials.map((t, i) => (
+          <figure class="voice" data-reveal data-reveal-delay={i * 0.1}>
+            <blockquote>{t.quote}</blockquote>
+            <figcaption>
+              <span class="who">{t.name}</span>
+              <span class="what">{t.role}</span>
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 6. HARGA ════ Asymmetric bento, exactly three cells -->
+  <section id="harga" class="prices">
+    <div class="shell">
+      <p class="eyebrow" data-reveal>Paket</p>
+      <h2 class="display prices-heading" data-reveal>Titik mulai yang jelas</h2>
+
+      <div class="bento">
+        {packages.map((p) => (
+          <article class={`cell ${p.featured ? 'cell-featured' : ''}`} data-reveal>
+            {p.featured && (
+              <img class="cell-img graded" src={featuredStill} alt="" loading="lazy" decoding="async" />
+            )}
+            <div class="cell-body">
+              <h3 class="cell-name">{p.name}</h3>
+              <p class="cell-price">
+                <span class="from">mulai</span>
+                <span class="amount">{juta(p.from)}</span>
+                {p.to && <span class="to">sampai {juta(p.to)}</span>}
+              </p>
+              <p class="cell-blurb">{p.blurb}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <p class="prices-note" data-reveal>
+        Angka di atas adalah harga dasar. Susun paket lengkap Anda sendiri lewat
+        <a href={url('tools/budget')}>kalkulator biaya</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- ════ 7. TOOLS ════ Two-up link tiles -->
+  <section class="tools">
+    <div class="shell">
+      <h2 class="display tools-heading" data-reveal>Alat bantu perencanaan</h2>
+      <div class="tools-grid">
+        <a class="tool" href={url('tools/budget')} data-reveal>
+          <Icon name="calculator" size={24} class="tool-icon" />
+          <h3>Kalkulator Biaya</h3>
+          <p>Susun paket dan lihat estimasi totalnya langsung, tanpa perlu bertanya dulu.</p>
+          <span class="tool-go">Buka <Icon name="arrow-narrow-right" size={16} /></span>
+        </a>
+        <a class="tool" href={url('tools/simpan')} data-reveal data-reveal-delay="0.1">
+          <Icon name="pig-money" size={24} class="tool-icon" />
+          <h3>Rencana Menabung</h3>
+          <p>Hitung berapa yang perlu disisihkan tiap bulan sampai hari H.</p>
+          <span class="tool-go">Buka <Icon name="arrow-narrow-right" size={16} /></span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 8. CTA ════ Centered close -->
+  <section id="kontak" class="close">
+    <div class="shell close-inner">
+      <span class="rule" data-rule aria-hidden="true"></span>
+      <h2 class="display close-heading" data-reveal>Mulai cerita Anda</h2>
+      <p class="close-sub" data-reveal>
+        Ceritakan rencana hari Anda. Kami balas dengan ketersediaan tanggal dan
+        paket yang paling masuk akal.
+      </p>
+      <div class="close-cta" data-reveal>
+        <a href={links.whatsapp} target="_blank" rel="noopener noreferrer" class="btn-primary">
+          Jadwalkan Konsultasi
+        </a>
+        <a href={url('contact')} class="btn-secondary">Kirim Pesan</a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* ── 1. Hero ── */
+  .hero {
+    position: relative;
+    /* The sticky bar occupies --nav-h of normal flow, so a full 100dvh here
+       would push the hero exactly that far past the fold and clip the
+       secondary CTA. */
+    min-height: calc(100dvh - var(--nav-h));
+    display: flex;
+    align-items: flex-end;
+    isolation: isolate;
+  }
+  .hero-copy {
+    position: relative;
+    z-index: 1;
+    padding-block: 4rem 3.5rem;
+    max-width: 1060px;
+  }
+  @media (min-width: 768px) {
+    .hero-copy {
+      padding-block: 6rem 6.5rem;
+    }
+  }
+  .hero-title {
+    /* Sized so the headline holds two lines at desktop. Larger than this and
+       it wraps to three, which overflows the hero and clips the eyebrow. */
+    font-size: clamp(2rem, 5vw, 3.75rem);
+    margin-block: 1.5rem 1.75rem;
+    max-width: 16ch;
+  }
+  @media (min-width: 768px) {
+    .hero-title {
+      max-width: 22ch;
+    }
+  }
+  /* SplitText wraps each visual line in a .line mask at runtime. The padding
+     reserves descender room so the italic 'g' in "yang" is never clipped. */
+  .hero-title :global(.line) {
+    padding-bottom: 0.1em;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--color-gold);
+  }
+  .hero-sub {
+    max-width: 42ch;
+    color: var(--color-paper-dim);
+    font-size: 1.0625rem;
+    margin-bottom: 2.5rem;
+  }
+  .hero-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  /* ── 2. Manifesto ── */
+  .manifesto {
+    padding-block: var(--spacing-section-sm);
+    border-top: 1px solid var(--color-line-soft);
+  }
+  @media (min-width: 768px) {
+    .manifesto {
+      padding-block: var(--spacing-section);
+    }
+  }
+  .statement {
+    font-size: clamp(1.5rem, 3.6vw, 2.75rem);
+    font-weight: 600;
+    line-height: 1.32;
+    letter-spacing: -0.015em;
+    max-width: 22ch;
+  }
+  @media (min-width: 768px) {
+    .statement {
+      max-width: 26ch;
+    }
+  }
+  .statement-note {
+    margin-top: 3rem;
+    margin-left: auto;
+    max-width: 44ch;
+    color: var(--color-paper-dim);
+    font-size: 0.9375rem;
+  }
+
+  /* ── 5. Voices ── */
+  .voices {
+    padding-block: var(--spacing-section-sm);
+    border-top: 1px solid var(--color-line-soft);
+  }
+  @media (min-width: 768px) {
+    .voices {
+      padding-block: var(--spacing-section);
+    }
+  }
+  .voices-heading {
+    font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+    margin-bottom: 3.5rem;
+  }
+  .voices-grid {
+    display: grid;
+    gap: 3rem;
+  }
+  @media (min-width: 768px) {
+    .voices-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 4rem;
+    }
+  }
+  .voice blockquote {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-style: italic;
+    line-height: 1.6;
+    color: var(--color-paper);
+    margin-bottom: 1.5rem;
+  }
+  .voice figcaption {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-line);
+  }
+  .who {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  .what {
+    font-size: 0.8125rem;
+    color: var(--color-paper-dim);
+  }
+
+  /* ── 6. Prices ── */
+  .prices {
+    padding-block: var(--spacing-section-sm);
+    border-top: 1px solid var(--color-line-soft);
+  }
+  @media (min-width: 768px) {
+    .prices {
+      padding-block: var(--spacing-section);
+    }
+  }
+  .prices .eyebrow {
+    margin-bottom: 1.25rem;
+  }
+  .prices-heading {
+    font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+    margin-bottom: 3rem;
+  }
+
+  /* Three packages, three cells. One tall featured tile plus two stacked. */
+  .bento {
+    display: grid;
+    gap: 1px;
+    background-color: var(--color-line);
+    border: 1px solid var(--color-line);
+  }
+  @media (min-width: 900px) {
+    .bento {
+      grid-template-columns: 1.15fr 1fr;
+      grid-template-rows: repeat(2, minmax(0, 1fr));
+    }
+    .cell-featured {
+      grid-row: span 2;
+    }
+  }
+
+  .cell {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    min-height: 220px;
+    background-color: var(--color-ground);
+    overflow: hidden;
+  }
+  .cell-featured {
+    min-height: 420px;
+  }
+  .cell-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .cell-featured::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgb(11 11 12 / 0.96) 20%, rgb(11 11 12 / 0.45) 100%);
+  }
+  .cell-body {
+    position: relative;
+    z-index: 1;
+    padding: 2rem;
+  }
+  @media (min-width: 768px) {
+    .cell-body {
+      padding: 2.5rem;
+    }
+  }
+  .cell-name {
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+  }
+  .cell-price {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .from,
+  .to {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-paper-dim);
+  }
+  .amount {
+    font-family: var(--font-display);
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--color-gold);
+    line-height: 1;
+  }
+  .cell-blurb {
+    max-width: 38ch;
+    font-size: 0.875rem;
+    color: var(--color-paper-dim);
+  }
+
+  .prices-note {
+    margin-top: 1.75rem;
+    font-size: 0.8125rem;
+    color: var(--color-paper-dim);
+  }
+  .prices-note a {
+    color: var(--color-gold);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* ── 7. Tools ── */
+  .tools {
+    padding-block: var(--spacing-section-sm);
+    border-top: 1px solid var(--color-line-soft);
+  }
+  @media (min-width: 768px) {
+    .tools {
+      padding-block: var(--spacing-section);
+    }
+  }
+  .tools-heading {
+    font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+    margin-bottom: 3rem;
+  }
+  .tools-grid {
+    display: grid;
+    gap: 1.5rem;
+  }
+  @media (min-width: 768px) {
+    .tools-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 2rem;
+    }
+  }
+  .tool {
+    display: block;
+    padding: 2rem;
+    border: 1px solid var(--color-line);
+    background-color: var(--color-ground-lift);
+    transition: border-color 0.3s ease, transform 0.3s ease;
+  }
+  .tool:hover {
+    border-color: var(--color-gold-dim);
+    transform: translateY(-3px);
+  }
+  .tool-icon {
+    color: var(--color-gold);
+    margin-bottom: 1.25rem;
+  }
+  .tool h3 {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.65rem;
+  }
+  .tool p {
+    font-size: 0.875rem;
+    color: var(--color-paper-dim);
+    max-width: 38ch;
+    margin-bottom: 1.5rem;
+  }
+  .tool-go {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-gold);
+  }
+
+  /* ── 8. Close ── */
+  .close {
+    padding-block: var(--spacing-section-sm);
+    border-top: 1px solid var(--color-line-soft);
+  }
+  @media (min-width: 768px) {
+    .close {
+      padding-block: var(--spacing-section);
+    }
+  }
+  .close-inner {
+    text-align: center;
+  }
+  .rule {
+    display: block;
+    width: 64px;
+    height: 1px;
+    margin: 0 auto 2.5rem;
+    background-color: var(--color-gold);
+    transform: scaleX(0);
+    transform-origin: center;
+  }
+  .close-heading {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    margin-bottom: 1.25rem;
+  }
+  .close-sub {
+    max-width: 42ch;
+    margin: 0 auto 2.5rem;
+    color: var(--color-paper-dim);
+  }
+  .close-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rule {
+      transform: scaleX(1);
+    }
+    .tool {
+      transition-duration: 0.01ms;
+    }
+  }
+</style>
+
+<script>
+  import { gsap, SplitText, motion, revealOnScroll, refreshWhenSettled, EASE } from '../scripts/motion';
+
+  // ── Hero ──────────────────────────────────────────────────────────
+  // Justification: hierarchy. The headline is the one thing that must land
+  // first, so it wipes up from behind a mask while everything else follows.
+  const heroTitle = document.querySelector<HTMLElement>('[data-hero-title]');
+  const heroFades = gsap.utils.toArray<HTMLElement>('[data-hero-fade]');
+
+  motion(
+    () => {
+      if (heroTitle) {
+        // mask:'lines' gives each visual line its own overflow-hidden wrapper,
+        // so the wipe stays correct however the text happens to wrap.
+        // autoSplit re-runs it on resize and font load; onSplit rebuilds the
+        // tween against the new lines. aria defaults to 'auto', which keeps the
+        // original sentence on the element as an aria-label.
+        SplitText.create(heroTitle, {
+          type: 'lines',
+          mask: 'lines',
+          linesClass: 'line',
+          autoSplit: true,
+          onSplit: (self) =>
+            gsap.from(self.lines, {
+              yPercent: 110,
+              duration: 1.1,
+              stagger: 0.12,
+              ease: EASE,
+              delay: 0.15,
+            }),
+        });
+      }
+      gsap.from(heroFades, {
+        opacity: 0,
+        y: 18,
+        duration: 0.8,
+        stagger: 0.1,
+        ease: EASE,
+        delay: 0.5,
+      });
+    },
+    () => gsap.set(heroFades, { opacity: 1, y: 0 }),
+  );
+
+  // ── Manifesto ─────────────────────────────────────────────────────
+  // Justification: storytelling. The brand statement resolves word by word at
+  // reading pace instead of arriving all at once.
+  const statement = document.querySelector<HTMLElement>('[data-statement]');
+  if (statement) {
+    motion(() => {
+      const split = new SplitText(statement, { type: 'words' });
+      gsap.fromTo(
+        split.words,
+        { opacity: 0.16 },
+        {
+          opacity: 1,
+          ease: 'none',
+          stagger: 0.4,
+          scrollTrigger: {
+            trigger: statement,
+            start: 'top 78%',
+            end: 'bottom 55%',
+            scrub: true,
+          },
+        },
+      );
+    });
+  }
+
+  // ── Closing rule ──────────────────────────────────────────────────
+  // Justification: hierarchy. A single gold line draws in above the final
+  // heading, pointing at the one action that matters.
+  const rule = document.querySelector<HTMLElement>('[data-rule]');
+  if (rule) {
+    motion(
+      () => {
+        gsap.to(rule, {
+          scaleX: 1,
+          duration: 1,
+          ease: EASE,
+          scrollTrigger: { trigger: rule, start: 'top 88%', once: true },
+        });
+      },
+      () => gsap.set(rule, { scaleX: 1 }),
+    );
+  }
+
+  revealOnScroll();
+  refreshWhenSettled();
+</script>

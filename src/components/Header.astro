@@ -1,0 +1,464 @@
+---
+/**
+ * Slim bar plus a full-screen navigation overlay.
+ *
+ * The first pass used a conventional horizontal bar with five text links and a
+ * separate mobile drawer. That is the most common shape on the web and it read
+ * as chrome sitting on top of the film, rather than as part of it. This version
+ * strips the bar to a wordmark, the primary CTA and a trigger, and moves
+ * navigation into a full-screen moment.
+ *
+ * Two deliberate choices:
+ *   - the CTA stays in the bar, so the primary action is never hidden behind an
+ *     extra click. That is what separates this from a plain hamburger.
+ *   - one pattern for both desktop and mobile, so there is no second navigation
+ *     mechanism to keep in sync.
+ *
+ * The bar sits ABOVE the overlay and stays visible while it is open, so the
+ * trigger doubles as the close control and the wordmark never disappears.
+ */
+import Wordmark from './Wordmark.astro';
+import { nav, links, url } from '../config/site';
+import { services } from '../config/services';
+import { projects } from '../config/portfolio';
+
+// Preview art is composed here rather than in site.ts, so that config file stays
+// free of dependencies. Every image is one already used elsewhere on the site.
+const previews: Record<string, string> = {
+  Tentang: services[0].still,
+  Layanan: services[1].still,
+  Portofolio: projects[0].cover,
+  Tools: services[2].still,
+  Kontak: projects[3].cover,
+};
+
+const href = (h: string) => (h.startsWith('#') ? url() + h : url(h));
+---
+
+<header id="navbar" data-menu-root>
+  <div class="bar shell">
+    <a href={url()} class="brand" aria-label="Akara Rahsa, beranda">
+      <Wordmark />
+    </a>
+
+    <div class="bar-right">
+      <a class="bar-cta" href={links.whatsapp} target="_blank" rel="noopener noreferrer">
+        Konsultasi
+      </a>
+
+      <button
+        id="menu-toggle"
+        class="trigger"
+        type="button"
+        aria-expanded="false"
+        aria-controls="menu-panel"
+      >
+        <span class="trigger-label" data-label>Menu</span>
+        <span class="trigger-glyph" aria-hidden="true"><i></i><i></i></span>
+      </button>
+    </div>
+  </div>
+
+  <div id="menu-panel" class="panel" role="dialog" aria-modal="true" aria-label="Navigasi" hidden>
+    <div class="panel-inner shell">
+      <nav class="menu" aria-label="Navigasi utama">
+        <ul>
+          {nav.map(({ href: h, label }) => (
+            <li class="item">
+              <a href={href(h)} data-preview={previews[label] ?? ''}>
+                <span class="mask"><span class="text">{label}</span></span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <div class="art" aria-hidden="true">
+        {nav.map(({ label }) =>
+          previews[label] ? (
+            <img class="graded" src={previews[label]} alt="" data-art={label} loading="lazy" decoding="async" />
+          ) : null,
+        )}
+      </div>
+    </div>
+
+    <div class="panel-foot shell">
+      <a href={links.instagram} target="_blank" rel="noopener noreferrer">Instagram</a>
+      <a href={links.tiktok} target="_blank" rel="noopener noreferrer">TikTok</a>
+      <a href={links.whatsapp} target="_blank" rel="noopener noreferrer">WhatsApp</a>
+      <a href={links.email}>Email</a>
+    </div>
+  </div>
+</header>
+
+<style>
+  #navbar {
+    position: sticky;
+    top: 0;
+    z-index: 80;
+    width: 100%;
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition: background-color 0.35s ease, backdrop-filter 0.35s ease,
+      border-color 0.35s ease;
+  }
+  /* Only while the page has been scrolled AND the overlay is shut does the bar
+     claim a surface. With the overlay open the panel behind it is already solid. */
+  #navbar.scrolled:not([data-open]) {
+    background-color: rgb(11 11 12 / 0.82);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom-color: var(--color-line-soft);
+  }
+
+  .bar {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    height: var(--nav-h);
+  }
+
+  .bar-right {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  @media (min-width: 560px) {
+    .bar-right {
+      gap: 2rem;
+    }
+  }
+
+  .bar-cta {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-gold);
+    white-space: nowrap;
+    padding-block: 0.5rem;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s ease;
+  }
+  .bar-cta:hover {
+    border-bottom-color: var(--color-gold);
+  }
+
+  .trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-paper);
+    padding: 0.5rem 0;
+    font-family: var(--font-body);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  /* Below 560px the label is hidden visually but kept in the accessibility
+     tree. display:none would strip it from the name computation and leave an
+     unnamed button, since the glyph beside it is aria-hidden. It also still
+     toggles between "Menu" and "Tutup", so the state is announced. */
+  .trigger-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  @media (min-width: 560px) {
+    .trigger-label {
+      position: static;
+      width: auto;
+      height: auto;
+      margin: 0;
+      overflow: visible;
+      clip-path: none;
+    }
+  }
+
+  /* Two rules that cross into an X. Cheaper and calmer than a three-bar glyph. */
+  .trigger-glyph {
+    position: relative;
+    display: block;
+    width: 26px;
+    height: 10px;
+    flex-shrink: 0;
+  }
+  .trigger-glyph i {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: currentColor;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .trigger-glyph i:first-child {
+    top: 2px;
+  }
+  .trigger-glyph i:last-child {
+    top: 7px;
+  }
+  #navbar[data-open] .trigger-glyph i:first-child {
+    transform: translateY(2.5px) rotate(45deg);
+  }
+  #navbar[data-open] .trigger-glyph i:last-child {
+    transform: translateY(-2.5px) rotate(-45deg);
+  }
+
+  /* ── Overlay ── */
+  .panel {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    background-color: var(--color-ground);
+    /* Curtain. Composited, and it does not squash the content the way a
+       scaleY would. */
+    clip-path: inset(0 0 100% 0);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-top: var(--nav-h);
+    overflow-y: auto;
+  }
+
+  .panel-inner {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 3rem;
+    padding-block: 3rem;
+  }
+
+  .menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .item + .item {
+    margin-top: 0.15em;
+  }
+  .item a {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(2.125rem, 6.5vw, 4rem);
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    color: var(--color-paper);
+    transition: color 0.3s ease;
+  }
+  .item a:hover {
+    color: var(--color-gold);
+  }
+  /* Each label rides in a mask so it can wipe up from behind its own baseline. */
+  .mask {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.08em;
+  }
+  .text {
+    display: block;
+  }
+
+  .art {
+    position: relative;
+    display: none;
+    width: min(38%, 420px);
+    aspect-ratio: 4 / 5;
+    flex-shrink: 0;
+    background-color: var(--color-ground-lift);
+  }
+  /* Pointer devices only: there is no hover to preview with on a touchscreen. */
+  @media (min-width: 900px) and (hover: hover) {
+    .art {
+      display: block;
+    }
+  }
+  .art img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  .art img[data-current] {
+    opacity: 1;
+  }
+
+  .panel-foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem 2rem;
+    padding-block: 1.75rem;
+    border-top: 1px solid var(--color-line-soft);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-paper-dim);
+  }
+  .panel-foot a:hover {
+    color: var(--color-gold);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .trigger-glyph i,
+    .art img,
+    #navbar {
+      transition-duration: 0.01ms;
+    }
+  }
+</style>
+
+<script>
+  import { gsap, prefersReduced, EASE } from '../scripts/motion';
+
+  const root = document.getElementById('navbar')!;
+  const panel = document.getElementById('menu-panel')!;
+  const toggle = document.getElementById('menu-toggle') as HTMLButtonElement;
+  const label = toggle.querySelector<HTMLElement>('[data-label]')!;
+  const texts = gsap.utils.toArray<HTMLElement>('.item .text', panel);
+  const artFrames = gsap.utils.toArray<HTMLImageElement>('.art img', panel);
+  const outside = () => document.querySelectorAll<HTMLElement>('main, footer');
+
+  let open = false;
+  let lastFocus: HTMLElement | null = null;
+
+  // Scrolled state via IntersectionObserver rather than a scroll listener,
+  // which would fire on every frame.
+  const sentinel = document.createElement('div');
+  sentinel.setAttribute('aria-hidden', 'true');
+  sentinel.style.cssText = 'position:absolute;top:0;height:1px;width:1px;';
+  document.body.prepend(sentinel);
+  new IntersectionObserver(
+    ([entry]) => root.classList.toggle('scrolled', !entry.isIntersecting),
+    { threshold: 0 },
+  ).observe(sentinel);
+
+  // ── Hover preview ──────────────────────────────────────────────────
+  // Justification: feedback. Binds the pointer to the item under it, so a
+  // text-only menu still previews the work behind each link.
+  // Falling back to the first frame rather than to nothing: an empty panel
+  // sitting beside the menu reads as a broken image, not as restraint.
+  const defaultArt = artFrames[0]?.dataset.art ?? null;
+
+  function showArt(name: string | null) {
+    const target = name ?? defaultArt;
+    artFrames.forEach((img) => {
+      if (target && img.dataset.art === target) img.setAttribute('data-current', '');
+      else img.removeAttribute('data-current');
+    });
+  }
+  panel.querySelectorAll<HTMLAnchorElement>('.item a').forEach((a) => {
+    const name = a.textContent?.trim() ?? '';
+    a.addEventListener('mouseenter', () => showArt(name));
+    a.addEventListener('focus', () => showArt(name));
+  });
+  panel.querySelector('.menu')?.addEventListener('mouseleave', () => showArt(null));
+
+  // ── Focus trap ─────────────────────────────────────────────────────
+  const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  function onKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape') {
+      setOpen(false);
+      return;
+    }
+    if (e.key !== 'Tab') return;
+    // The bar sits above the panel and holds the close control, so the trap
+    // spans the whole header, not just the panel.
+    const items = [...root.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
+      (el) => el.offsetParent !== null || el === toggle,
+    );
+    if (!items.length) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+
+  function setOpen(next: boolean) {
+    if (next === open) return;
+    open = next;
+
+    toggle.setAttribute('aria-expanded', String(open));
+    label.textContent = open ? 'Tutup' : 'Menu';
+
+    if (open) {
+      lastFocus = document.activeElement as HTMLElement;
+      panel.hidden = false;
+      root.setAttribute('data-open', '');
+
+      // Compensate for the vanishing scrollbar so the page does not jump.
+      const gap = window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.overflow = 'hidden';
+      if (gap > 0) document.body.style.paddingRight = `${gap}px`;
+
+      // Hide the rest of the page from assistive tech and from Tab entirely.
+      outside().forEach((el) => el.setAttribute('inert', ''));
+      document.addEventListener('keydown', onKeydown);
+      showArt(null);
+
+      if (prefersReduced()) {
+        gsap.set(panel, { clipPath: 'inset(0 0 0% 0)' });
+        gsap.set(texts, { yPercent: 0, opacity: 1 });
+      } else {
+        // Justification: state transition. The curtain marks the move into a
+        // full-screen navigation mode rather than a dropdown.
+        gsap
+          .timeline()
+          .fromTo(
+            panel,
+            { clipPath: 'inset(0 0 100% 0)' },
+            { clipPath: 'inset(0 0 0% 0)', duration: 0.7, ease: 'power4.inOut' },
+          )
+          // Justification: hierarchy. Staggering the labels sets reading order
+          // before the eye starts choosing.
+          .from(texts, { yPercent: 115, duration: 0.7, stagger: 0.06, ease: EASE }, 0.25);
+      }
+      toggle.focus();
+    } else {
+      root.removeAttribute('data-open');
+      document.removeEventListener('keydown', onKeydown);
+      outside().forEach((el) => el.removeAttribute('inert'));
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+
+      const finish = () => {
+        panel.hidden = true;
+        gsap.set(texts, { clearProps: 'all' });
+      };
+      if (prefersReduced()) {
+        finish();
+      } else {
+        gsap.to(panel, {
+          clipPath: 'inset(0 0 100% 0)',
+          duration: 0.5,
+          ease: 'power4.inOut',
+          onComplete: finish,
+        });
+      }
+      lastFocus?.focus();
+    }
+  }
+
+  toggle.addEventListener('click', () => setOpen(!open));
+  panel.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
+</script>

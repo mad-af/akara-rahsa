@@ -1,0 +1,460 @@
+---
+/**
+ * Savings planner. Ported from v1 src/pages/tools/simpan/index.astro.
+ *
+ * All arithmetic is carried over unchanged: parseNum, formatIDR,
+ * monthsBetween, the whole of compute() including perBulan = ceil(sisa/bulan),
+ * perMinggu = ceil(perBulan/4), perHari = ceil(perBulan/30), the month-wrap on
+ * hariSisa, and formatInputAsIDR's cursor preservation.
+ *
+ * What changed:
+ *   - storage moved to the shared module, which is what makes this tool able to
+ *     persist at all when a visitor has already used the budget calculator
+ *   - v1's markup was almost entirely inline style attributes; it is now
+ *     scoped CSS on the dark tokens
+ *   - the six empty-state readouts used a literal em-dash; they use a hyphen
+ *   - the hand-drawn info glyph (simpan:115-117) comes from Tabler
+ */
+import Layout from '../../../layouts/Layout.astro';
+import Icon from '../../../components/Icon.astro';
+import { url } from '../../../config/site';
+---
+
+<Layout
+  title="Planning Simpanan, Akara Rahsa"
+  description="Hitung berapa yang perlu Anda tabung setiap bulan untuk mencapai budget pernikahan."
+>
+  <div class="page shell">
+    <a class="back" href={url('tools')}>
+      <Icon name="arrow-narrow-left" size={16} /> Kembali ke Tools
+    </a>
+
+    <header class="head">
+      <h1 class="display h1">Berapa yang harus <em>ditabung</em>?</h1>
+      <p class="lede">
+        Masukkan budget pernikahan impian dan tanggal hari H. Kami bantu hitung
+        alokasi tabungan Anda.
+      </p>
+    </header>
+
+    <section class="card">
+      <div class="group">
+        <label class="field-label" for="budget">Target budget pernikahan</label>
+        <div class="money">
+          <span class="prefix" aria-hidden="true">Rp</span>
+          <input class="field has-prefix" type="text" id="budget" inputmode="numeric" placeholder="50.000.000" />
+        </div>
+        <p class="help">Ketik angkanya saja, pemisah ribuan ditambahkan otomatis.</p>
+      </div>
+
+      <div class="group">
+        <label class="field-label" for="tanggal">Tanggal pernikahan</label>
+        <input class="field" type="date" id="tanggal" />
+      </div>
+
+      <div class="group">
+        <label class="field-label" for="sudah">
+          Sudah ada tabungan <span class="opt">(opsional)</span>
+        </label>
+        <div class="money">
+          <span class="prefix" aria-hidden="true">Rp</span>
+          <input class="field has-prefix" type="text" id="sudah" inputmode="numeric" placeholder="0" />
+        </div>
+      </div>
+    </section>
+
+    <p class="saved" id="savedNote" role="status" aria-live="polite"></p>
+
+    <section id="simpan-results" hidden>
+      <div class="headline">
+        <p class="cap">Sisa yang perlu ditabung</p>
+        <p class="big" id="result-sisa"></p>
+      </div>
+
+      <div class="grid two">
+        <div class="cell">
+          <p class="cap">Sisa bulan</p>
+          <p class="num" id="result-bulan-sisa"></p>
+        </div>
+        <div class="cell">
+          <p class="cap">Hari</p>
+          <p class="num" id="result-hari-sisa"></p>
+        </div>
+      </div>
+
+      <div class="grid three">
+        <div class="cell">
+          <p class="cap">Per bulan</p>
+          <p class="num" id="result-bulanan"></p>
+        </div>
+        <div class="cell">
+          <p class="cap">Per minggu</p>
+          <p class="num" id="result-mingguan"></p>
+        </div>
+        <div class="cell">
+          <p class="cap">Per hari</p>
+          <p class="num" id="result-harian"></p>
+        </div>
+      </div>
+
+      <div class="note">
+        <Icon name="info-circle" size={20} class="note-ico" />
+        <p id="result-note"></p>
+      </div>
+
+      <div class="cta">
+        <p class="cta-p">Siap memulai perencanaan?</p>
+        <a href={url('contact')} class="btn-primary">Konsultasi Gratis</a>
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .page {
+    max-width: 40rem;
+    padding-block: 2.5rem 6rem;
+  }
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--color-paper-dim);
+  }
+  .back:hover {
+    color: var(--color-gold);
+  }
+
+  .head {
+    padding-block: 3rem 2.5rem;
+  }
+  .h1 {
+    font-size: clamp(1.875rem, 4.5vw, 2.5rem);
+    margin-bottom: 1rem;
+  }
+  .h1 em {
+    font-style: italic;
+    color: var(--color-gold);
+  }
+  .lede {
+    color: var(--color-paper-dim);
+    max-width: 44ch;
+  }
+
+  .card {
+    background-color: var(--color-ground-lift);
+    border: 1px solid var(--color-line);
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  @media (min-width: 640px) {
+    .card {
+      padding: 2.5rem;
+    }
+  }
+  .opt {
+    font-weight: 400;
+    color: var(--color-paper-dim);
+  }
+  .help {
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--color-paper-dim);
+  }
+
+  .money {
+    position: relative;
+  }
+  .prefix {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.9375rem;
+    color: var(--color-paper-dim);
+    pointer-events: none;
+  }
+  .has-prefix {
+    padding-left: 2.75rem;
+  }
+  .field {
+    font-variant-numeric: tabular-nums;
+  }
+  /* The native date picker follows color-scheme (set on :root in global.css),
+     but the calendar glyph is drawn dark and needs inverting to stay visible. */
+  input[type='date']::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.55;
+    cursor: pointer;
+  }
+  input[type='date']::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+  }
+
+  .saved {
+    min-height: 1.25rem;
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--color-paper-dim);
+  }
+  .saved[data-state='failed'] {
+    color: var(--color-paper);
+    font-weight: 500;
+  }
+
+  .headline {
+    text-align: center;
+    padding-block: 1.5rem 2rem;
+    border-bottom: 1px solid var(--color-line);
+    margin-bottom: 1.5rem;
+  }
+  .cap {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-paper-dim);
+    margin-bottom: 0.5rem;
+  }
+  .big {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 6vw, 2.75rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: var(--color-gold);
+  }
+
+  .grid {
+    display: grid;
+    gap: 1px;
+    background-color: var(--color-line);
+    border: 1px solid var(--color-line);
+    margin-bottom: 0.75rem;
+  }
+  .two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-bottom: 2rem;
+  }
+  .cell {
+    background-color: var(--color-ground);
+    padding: 1.25rem 1rem;
+    text-align: center;
+  }
+  /* Noto Sans rather than the display serif: these sit well below 1.5rem,
+     where Playfair's hairlines break up on a dark ground. Tabular figures stop
+     the numbers jittering as they update. */
+  .num {
+    font-family: var(--font-body);
+    font-size: 1.125rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-paper);
+    line-height: 1.2;
+  }
+
+  .note {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 1.25rem 1.5rem;
+    background-color: rgb(var(--gold-rgb) / 0.05);
+    border: 1px solid rgb(var(--gold-rgb) / 0.18);
+    margin-bottom: 2rem;
+  }
+  .note-ico {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--color-gold);
+  }
+  .note p {
+    font-size: 0.8125rem;
+    color: var(--color-paper-dim);
+    line-height: 1.6;
+  }
+
+  .cta {
+    text-align: center;
+  }
+  .cta-p {
+    font-size: 0.875rem;
+    color: var(--color-paper-dim);
+    margin-bottom: 1rem;
+  }
+
+  @media (max-width: 520px) {
+    .three {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  import { createStore, autosave } from '../../../lib/storage';
+
+  interface SimpanData {
+    budget: string;
+    tanggal: string;
+    sudah: string;
+  }
+
+  const store = createStore<SimpanData>('simpan');
+
+  const budgetInput = document.getElementById('budget') as HTMLInputElement;
+  const tanggalInput = document.getElementById('tanggal') as HTMLInputElement;
+  const sudahInput = document.getElementById('sudah') as HTMLInputElement;
+  const resultsBox = document.getElementById('simpan-results')!;
+  const savedNote = document.getElementById('savedNote')!;
+
+  const save = autosave<SimpanData>(store, 'wedding-simpan-data', (status) => {
+    if (status === 'saving') return;
+    savedNote.dataset.state = status;
+    savedNote.textContent =
+      status === 'saved'
+        ? 'Tersimpan di perangkat ini'
+        : 'Gagal menyimpan. Data hanya bertahan selama tab ini terbuka.';
+    if (status === 'saved') {
+      setTimeout(() => {
+        if (savedNote.dataset.state === 'saved') savedNote.textContent = '';
+      }, 2000);
+    }
+  });
+
+  const scheduleSave = () =>
+    save({
+      budget: budgetInput.value,
+      tanggal: tanggalInput.value,
+      sudah: sudahInput.value,
+    });
+
+  // ── Arithmetic below is unchanged from v1 (simpan:200-270). ────────────
+  function parseNum(str: string): number {
+    if (!str) return 0;
+    return parseInt(str.replace(/\D/g, ''), 10) || 0;
+  }
+
+  function formatIDR(n: number): string {
+    return 'Rp ' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+
+  function monthsBetween(d1: Date, d2: Date): number {
+    const date1 = new Date(d1);
+    const date2 = new Date(d2);
+    let months = (date2.getFullYear() - date1.getFullYear()) * 12;
+    months -= date1.getMonth();
+    months += date2.getMonth();
+    if (date2.getDate() < date1.getDate()) months--;
+    return Math.max(0, months);
+  }
+
+  const set = (id: string, text: string) => {
+    document.getElementById(id)!.textContent = text;
+  };
+
+  function compute() {
+    const budget = parseNum(budgetInput.value);
+    const tanggal = tanggalInput.value;
+    const sudah = parseNum(sudahInput.value);
+
+    if (!budget || !tanggal) {
+      resultsBox.hidden = true;
+      return;
+    }
+
+    const now = new Date();
+    const weddingDate = new Date(tanggal + 'T00:00:00');
+    const bulanSisa = monthsBetween(now, weddingDate);
+
+    if (bulanSisa < 1) {
+      resultsBox.hidden = false;
+      // v1 used a literal em-dash for these six placeholders (simpan:235-240).
+      for (const id of [
+        'result-sisa',
+        'result-bulan-sisa',
+        'result-hari-sisa',
+        'result-bulanan',
+        'result-mingguan',
+        'result-harian',
+      ]) {
+        set(id, '-');
+      }
+      set(
+        'result-note',
+        'Tanggal pernikahan sudah dekat atau kurang dari sebulan. Hubungi kami untuk diskusi langsung.',
+      );
+      return;
+    }
+
+    const sisa = Math.max(0, budget - sudah);
+    const perBulan = Math.ceil(sisa / bulanSisa);
+    const perMinggu = Math.ceil(perBulan / 4);
+    const perHari = Math.ceil(perBulan / 30);
+
+    const daysInWeddingMonth = new Date(
+      weddingDate.getFullYear(),
+      weddingDate.getMonth() + 1,
+      0,
+    ).getDate();
+    let hariSisa = weddingDate.getDate() - now.getDate();
+    if (hariSisa < 0) hariSisa += daysInWeddingMonth;
+
+    resultsBox.hidden = false;
+    set('result-sisa', formatIDR(sisa));
+    set('result-bulan-sisa', `${bulanSisa} bulan`);
+    set('result-hari-sisa', `${hariSisa} hari`);
+    set('result-bulanan', formatIDR(perBulan));
+    set('result-mingguan', formatIDR(perMinggu));
+    set('result-harian', formatIDR(perHari));
+
+    let noteText =
+      `Dengan waktu tersisa ${bulanSisa} bulan ${hariSisa} hari, Anda perlu menyisihkan ` +
+      `${formatIDR(perBulan)} per bulan, ${formatIDR(perMinggu)} per minggu, atau ` +
+      `${formatIDR(perHari)} per hari.`;
+    if (sudah > 0) {
+      noteText += ` Tabungan yang sudah ada sebesar ${formatIDR(sudah)} telah dikurangkan dari total.`;
+    }
+    set('result-note', noteText);
+  }
+
+  /** Cursor-preserving thousands separator, unchanged from v1 (simpan:300-309). */
+  function formatInputAsIDR(input: HTMLInputElement) {
+    const cursorPos = input.selectionStart ?? 0;
+    const oldLen = input.value.length;
+    const raw = parseNum(input.value);
+    input.value = raw ? raw.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
+    const newPos = Math.max(0, cursorPos + (input.value.length - oldLen));
+    input.setSelectionRange(newPos, newPos);
+  }
+
+  budgetInput.addEventListener('input', () => {
+    formatInputAsIDR(budgetInput);
+    compute();
+    scheduleSave();
+  });
+  sudahInput.addEventListener('input', () => {
+    formatInputAsIDR(sudahInput);
+    compute();
+    scheduleSave();
+  });
+  tanggalInput.addEventListener('input', () => {
+    compute();
+    scheduleSave();
+  });
+
+  tanggalInput.setAttribute('min', new Date().toISOString().split('T')[0]);
+
+  void (async () => {
+    const data = await store.get('wedding-simpan-data');
+    if (!data) return;
+    if (data.budget) budgetInput.value = data.budget;
+    if (data.tanggal) tanggalInput.value = data.tanggal;
+    if (data.sudah) sudahInput.value = data.sudah;
+    compute();
+  })();
+</script>

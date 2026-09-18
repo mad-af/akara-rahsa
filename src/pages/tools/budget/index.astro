@@ -1,0 +1,746 @@
+---
+/**
+ * Wedding budget calculator. Ported from v1 src/pages/tools/budget/index.astro.
+ *
+ * Calculation logic is carried over unchanged: the default rows, the total
+ * reduce, the percentage maths, the 10/15 percent documentation thresholds, and
+ * all of the donut geometry (size 240, r 90, stroke 22, rotate -90).
+ *
+ * What changed, and why:
+ *   - storage moved to src/lib/storage.ts, which fixes a defect where this tool
+ *     and the savings planner each created only their own object store in the
+ *     same database at the same version, so whichever loaded second could never
+ *     persist anything (see the comment block in that file)
+ *   - rows are built with createElement instead of string concatenation. v1's
+ *     escapeHtml (budget:496) did not escape double quotes, and its output was
+ *     interpolated into value="..." at budget:508
+ *   - the WhatsApp CTA used a placeholder number, '6280000000000' (budget:441)
+ *   - confirm() replaced with a two-step inline confirm
+ *   - the save indicator now reports failure instead of always claiming success
+ */
+import Layout from '../../../layouts/Layout.astro';
+import Icon from '../../../components/Icon.astro';
+import { url } from '../../../config/site';
+---
+
+<Layout
+  title="Kalkulator Anggaran Pernikahan, Akara Rahsa"
+  description="Susun anggaran pernikahan Anda sendiri. Tersimpan otomatis di perangkat."
+>
+  <div class="page shell">
+    <a class="back" href={url('tools')}>
+      <Icon name="arrow-narrow-left" size={16} /> Kembali ke Tools
+    </a>
+
+    <header class="head">
+      <h1 class="display h1">Susun <em>anggaran</em><br />pernikahan impianmu</h1>
+      <p class="lede">
+        Isi perkiraan biaya tiap pos. Kami hitung totalnya, tunjukkan alokasinya,
+        dan beri gambaran umum. Data tersimpan di perangkat ini saja.
+      </p>
+    </header>
+
+    <section class="card" aria-labelledby="rincian">
+      <h2 class="label" id="rincian">Rincian Anggaran</h2>
+      <div class="rows" id="rows"></div>
+      <button class="add-row" id="addRow" type="button">Tambah pos anggaran</button>
+    </section>
+
+    <section class="results" aria-labelledby="alokasi">
+      <div class="total">
+        <p class="total-label">Total estimasi anggaran</p>
+        <p class="total-value" id="totalValue">Rp 0</p>
+      </div>
+
+      <div class="ring-wrap" id="ringWrap">
+        <svg id="ringSvg" width="240" height="240" viewBox="0 0 240 240" role="img"
+             aria-label="Diagram alokasi anggaran per pos"></svg>
+      </div>
+
+      <h2 class="label" id="alokasi">Alokasi per Pos</h2>
+      <div class="breakdown" id="breakdown"></div>
+
+      <div class="insight" id="insight"></div>
+      <p class="disclaimer">
+        Persentase acuan bersifat umum, bukan patokan mutlak. Setiap pernikahan
+        punya prioritas yang berbeda.
+      </p>
+    </section>
+
+    <section class="cta">
+      <h2 class="display cta-h">Ingin diskusikan anggaran dokumentasi?</h2>
+      <p class="cta-p">
+        Kami senang membantu menakar bagian dokumentasi dari total rencana
+        anggaran Anda, santai dan tanpa tekanan.
+      </p>
+      <div class="cta-row">
+        <a href="#" class="btn-primary" id="waBtn">Kirim Rincian ke WhatsApp</a>
+        <button class="btn-secondary" id="resetBtn" type="button">Reset Data</button>
+      </div>
+      <p class="saved" id="savedNote" role="status" aria-live="polite"></p>
+    </section>
+  </div>
+</Layout>
+
+<style is:global>
+  /* Rows and breakdown entries are created in JS, so their styles cannot live
+     in a scoped block. Everything here is namespaced under .page. */
+  .page {
+    max-width: 44rem;
+    padding-block: 2.5rem 6rem;
+  }
+
+  .page .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--color-paper-dim);
+  }
+  .page .back:hover {
+    color: var(--color-gold);
+  }
+
+  .page .head {
+    padding-block: 3rem 2.5rem;
+  }
+  .page .h1 {
+    font-size: clamp(1.875rem, 5vw, 2.75rem);
+    margin-bottom: 1.25rem;
+  }
+  .page .h1 em {
+    font-style: italic;
+    color: var(--color-gold);
+  }
+  .page .lede {
+    color: var(--color-paper-dim);
+    max-width: 48ch;
+  }
+
+  .page .card {
+    background-color: var(--color-ground-lift);
+    border: 1px solid var(--color-line);
+    padding: 1.75rem;
+  }
+  @media (min-width: 640px) {
+    .page .card {
+      padding: 2.5rem;
+    }
+  }
+
+  .page .label {
+    font-family: var(--font-body);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-gold);
+    margin-bottom: 1.25rem;
+  }
+
+  /* ── Rows ── */
+  .page .rows {
+    margin-bottom: 1.125rem;
+  }
+  .page .row {
+    display: grid;
+    grid-template-columns: 1fr 160px 32px;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .page .row input[type='text'] {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid transparent;
+    color: var(--color-paper);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    padding: 6px 2px;
+    width: 100%;
+  }
+  .page .row input[type='text']:focus {
+    outline: none;
+    border-bottom-color: var(--color-gold);
+  }
+  .page .row input::placeholder {
+    color: #8a867f;
+  }
+  .page .amount-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .page .amount-field span {
+    color: var(--color-paper-dim);
+    font-size: 0.8125rem;
+    margin-right: 6px;
+    flex-shrink: 0;
+  }
+  .page .row input[type='number'] {
+    background-color: var(--color-ground);
+    border: 1px solid var(--color-line);
+    color: var(--color-gold);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-variant-numeric: tabular-nums;
+    padding: 8px 10px;
+    width: 100%;
+    text-align: right;
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
+  .page .row input[type='number']::-webkit-outer-spin-button,
+  .page .row input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .page .row input[type='number']:focus {
+    outline: none;
+    border-color: var(--color-gold);
+  }
+  .page .remove-btn {
+    background: none;
+    border: none;
+    color: var(--color-paper-dim);
+    cursor: pointer;
+    line-height: 1;
+    padding: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s ease;
+  }
+  /* One accent only, so removal is signalled by contrast, not by a red. */
+  .page .remove-btn:hover {
+    color: var(--color-paper);
+  }
+
+  .page .add-row {
+    width: 100%;
+    background: transparent;
+    border: 1px dashed #3a3a40;
+    color: var(--color-gold);
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    padding: 12px;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
+  .page .add-row:hover {
+    border-color: var(--color-gold-dim);
+    background-color: rgb(var(--gold-rgb) / 0.04);
+  }
+
+  /* ── Results ── */
+  .page .results {
+    margin-top: 3rem;
+  }
+  .page .total {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  .page .total-label {
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-paper-dim);
+    margin-bottom: 0.65rem;
+  }
+  .page .total-value {
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 6vw, 3.25rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--color-gold);
+    line-height: 1.1;
+  }
+
+  .page .ring-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+  }
+  .page .ring-wrap svg {
+    overflow: visible;
+  }
+  .page .ring-center-label {
+    text-anchor: middle;
+  }
+  .page .ring-label-top {
+    font-family: var(--font-body);
+    font-size: 10px;
+    letter-spacing: 2px;
+    fill: var(--color-paper-dim);
+  }
+  /* Noto Sans, not Playfair: the display serif's hairlines break up below
+     1.5rem on a dark ground. */
+  .page .ring-label-count {
+    font-family: var(--font-body);
+    font-size: 17px;
+    font-weight: 500;
+    fill: var(--color-paper);
+  }
+
+  .page .breakdown {
+    margin-bottom: 0.5rem;
+  }
+  .page .bd-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .page .bd-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .page .bd-name {
+    flex: 1;
+    font-size: 0.875rem;
+    color: var(--color-paper);
+  }
+  .page .bd-amt {
+    width: 120px;
+    text-align: right;
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-paper-dim);
+  }
+  .page .bd-pct {
+    width: 52px;
+    text-align: right;
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-gold);
+  }
+  .page .bd-empty {
+    color: var(--color-paper-dim);
+    font-size: 0.8125rem;
+    text-align: center;
+    padding: 20px 0;
+  }
+
+  .page .insight {
+    margin-top: 1.75rem;
+    padding: 1.125rem 1.25rem;
+    background-color: rgb(var(--gold-rgb) / 0.05);
+    border-left: 2px solid var(--color-gold);
+    font-size: 0.875rem;
+    line-height: 1.7;
+    color: var(--color-paper);
+  }
+  .page .insight strong {
+    color: var(--color-gold);
+    font-weight: 600;
+  }
+  .page .disclaimer {
+    font-size: 0.75rem;
+    color: var(--color-paper-dim);
+    margin-top: 0.75rem;
+  }
+
+  /* ── CTA ── */
+  .page .cta {
+    margin-top: 3rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--color-line);
+    text-align: center;
+  }
+  .page .cta-h {
+    font-size: 1.625rem;
+    margin-bottom: 0.75rem;
+  }
+  .page .cta-p {
+    font-size: 0.875rem;
+    color: var(--color-paper-dim);
+    max-width: 44ch;
+    margin: 0 auto 1.75rem;
+  }
+  .page .cta-row {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .page .saved {
+    min-height: 1.25rem;
+    margin-top: 1rem;
+    font-size: 0.75rem;
+    color: var(--color-paper-dim);
+  }
+  .page .saved[data-state='failed'] {
+    color: var(--color-paper);
+    font-weight: 500;
+  }
+
+  @media (max-width: 520px) {
+    .page .row {
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+    .page .row input[type='text'] {
+      grid-column: 1 / -1;
+    }
+    .page .amount-field {
+      grid-column: 1;
+    }
+    .page .remove-btn {
+      grid-column: 2;
+      justify-self: end;
+    }
+    .page .bd-amt {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import { createStore, autosave } from '../../../lib/storage';
+  import { contact } from '../../../config/site';
+  import { gsap, motion } from '../../../scripts/motion';
+
+  interface Row {
+    id: string;
+    name: string;
+    amount: number;
+  }
+
+  // Unchanged from v1 (budget:421-428).
+  const defaultRows = [
+    { name: 'Venue & Dekorasi', amount: 0 },
+    { name: 'Katering', amount: 0 },
+    { name: 'Dokumentasi (Foto/Video)', amount: 0 },
+    { name: 'Busana & Rias', amount: 0 },
+    { name: 'Undangan & Souvenir', amount: 0 },
+    { name: 'MC & Entertainment', amount: 0 },
+  ];
+
+  /**
+   * One accent, varied by alpha, rather than eight hand-picked tints.
+   * A hand-built ramp drifts in hue as it darkens and lands in brass; holding
+   * a single colour and changing only opacity keeps the hue fixed. The floor
+   * is 0.5, below which a slice drops under 3:1 against the ground.
+   */
+  const ALPHAS = [1, 0.86, 0.74, 0.64, 0.56, 0.5];
+
+  /* Read back from CSS so the accent lives in exactly one place. Resolved
+     lazily on first use, not at module scope, because at module scope the
+     stylesheet may not have been applied yet and this would return ''. The
+     literal is only a fallback for that case. */
+  let goldRgb: string | undefined;
+  function accent(): string {
+    if (goldRgb === undefined) {
+      goldRgb =
+        getComputedStyle(document.documentElement).getPropertyValue('--gold-rgb').trim() ||
+        '232 185 60';
+    }
+    return goldRgb;
+  }
+  const slice = (i: number) => `rgb(${accent()} / ${ALPHAS[i % ALPHAS.length]})`;
+
+  const store = createStore<Row[]>('budget');
+
+  const rowsEl = document.getElementById('rows')!;
+  const totalValueEl = document.getElementById('totalValue')!;
+  const breakdownEl = document.getElementById('breakdown')!;
+  const insightEl = document.getElementById('insight')!;
+  const ringSvg = document.getElementById('ringSvg')!;
+  const ringWrap = document.getElementById('ringWrap')!;
+  const savedNote = document.getElementById('savedNote')!;
+  const waBtn = document.getElementById('waBtn') as HTMLAnchorElement;
+
+  let rows: Row[] = [];
+  let ringHasShown = false;
+
+  // Honest status: v1 printed "Tersimpan otomatis" whether or not the write
+  // committed (budget:469).
+  const save = autosave<Row[]>(store, 'wedding-budget-rows', (status) => {
+    if (status === 'saving') return;
+    savedNote.dataset.state = status;
+    savedNote.textContent =
+      status === 'saved'
+        ? 'Tersimpan di perangkat ini'
+        : 'Gagal menyimpan. Data hanya bertahan selama tab ini terbuka.';
+    if (status === 'saved') {
+      setTimeout(() => {
+        if (savedNote.dataset.state === 'saved') savedNote.textContent = '';
+      }, 2000);
+    }
+  });
+
+  // Unchanged from v1 (budget:443-449).
+  const formatRupiah = (n: number) => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+  const uid = () => Math.random().toString(36).slice(2, 9);
+
+  async function loadData() {
+    const saved = await store.get('wedding-budget-rows');
+    rows =
+      Array.isArray(saved) && saved.length
+        ? saved
+        : defaultRows.map((r) => ({ id: uid(), name: r.name, amount: r.amount }));
+    render();
+  }
+
+  function addRow() {
+    rows.push({ id: uid(), name: '', amount: 0 });
+    render();
+    save(rows);
+  }
+
+  function removeRow(id: string) {
+    rows = rows.filter((r) => r.id !== id);
+    render();
+    save(rows);
+  }
+
+  function updateRow(id: string, field: 'name' | 'amount', value: string) {
+    const row = rows.find((r) => r.id === id);
+    if (!row) return;
+    if (field === 'amount') row.amount = parseFloat(value) || 0;
+    else row.name = value;
+    computeAndRenderResults();
+    save(rows);
+  }
+
+  /**
+   * Built with createElement rather than innerHTML. v1's escapeHtml did not
+   * escape double quotes, and the result went straight into a value="..."
+   * attribute, so a row name containing a quote escaped the attribute.
+   */
+  function renderRows() {
+    rowsEl.replaceChildren();
+
+    rows.forEach((row, i) => {
+      const div = document.createElement('div');
+      div.className = 'row';
+
+      const name = document.createElement('input');
+      name.type = 'text';
+      name.placeholder = 'Nama pos anggaran';
+      name.value = row.name;
+      // v1 labelled these by placeholder alone, which screen readers drop once
+      // a value is typed.
+      name.setAttribute('aria-label', `Nama pos anggaran baris ${i + 1}`);
+      name.addEventListener('input', () => updateRow(row.id, 'name', name.value));
+
+      const field = document.createElement('div');
+      field.className = 'amount-field';
+      const prefix = document.createElement('span');
+      prefix.textContent = 'Rp';
+      prefix.setAttribute('aria-hidden', 'true');
+
+      const amount = document.createElement('input');
+      amount.type = 'number';
+      amount.min = '0';
+      amount.placeholder = '0';
+      amount.value = row.amount ? String(row.amount) : '';
+      amount.setAttribute('aria-label', `Jumlah rupiah untuk ${row.name || `baris ${i + 1}`}`);
+      amount.addEventListener('input', () => updateRow(row.id, 'amount', amount.value));
+      field.append(prefix, amount);
+
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'remove-btn';
+      remove.setAttribute('aria-label', `Hapus ${row.name || `baris ${i + 1}`}`);
+      remove.innerHTML =
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></svg>';
+      // currentTarget, not target: target would be the inner <svg> or <path>.
+      remove.addEventListener('click', () => removeRow(row.id));
+
+      div.append(name, field, remove);
+      rowsEl.appendChild(div);
+    });
+  }
+
+  function computeAndRenderResults() {
+    const total = rows.reduce((sum, r) => sum + (r.amount || 0), 0);
+    totalValueEl.textContent = formatRupiah(total);
+
+    const active = rows.filter((r) => r.amount > 0);
+    renderRing(active, total);
+
+    breakdownEl.replaceChildren();
+    if (active.length === 0) {
+      const empty = document.createElement('p');
+      empty.className = 'bd-empty';
+      empty.textContent = 'Isi angka pada pos di atas untuk melihat alokasi anggaran Anda.';
+      breakdownEl.appendChild(empty);
+    } else {
+      [...active]
+        .sort((a, b) => b.amount - a.amount)
+        .forEach((row, i) => {
+          const pct = total > 0 ? (row.amount / total) * 100 : 0;
+          const line = document.createElement('div');
+          line.className = 'bd-row';
+
+          const dot = document.createElement('span');
+          dot.className = 'bd-dot';
+          dot.style.background = slice(i);
+
+          const label = document.createElement('span');
+          label.className = 'bd-name';
+          label.textContent = row.name || '(Tanpa nama)';
+
+          const amt = document.createElement('span');
+          amt.className = 'bd-amt';
+          amt.textContent = formatRupiah(row.amount);
+
+          const pctEl = document.createElement('span');
+          pctEl.className = 'bd-pct';
+          pctEl.textContent = `${pct.toFixed(0)}%`;
+
+          line.append(dot, label, amt, pctEl);
+          breakdownEl.appendChild(line);
+        });
+    }
+
+    renderInsight(total);
+    renderWhatsApp(active, total);
+  }
+
+  /** Threshold logic unchanged from v1 (budget:556-575). */
+  function renderInsight(total: number) {
+    const docRow = rows.find((r) => r.name && r.name.toLowerCase().includes('dokumentasi'));
+
+    if (total > 0 && docRow && docRow.amount > 0) {
+      const docPct = Number(((docRow.amount / total) * 100).toFixed(0));
+      let msg: string;
+      if (docPct < 10) {
+        msg = `Dokumentasi Anda saat ini <strong>${docPct}%</strong> dari total anggaran, sedikit di bawah kisaran umum 10 sampai 15 persen. Banyak pasangan menyesal justru di pos ini, karena hasilnya yang paling lama dikenang.`;
+      } else if (docPct <= 15) {
+        msg = `Dokumentasi Anda saat ini <strong>${docPct}%</strong> dari total anggaran, sudah berada di kisaran umum 10 sampai 15 persen. Alokasi yang seimbang.`;
+      } else {
+        msg = `Dokumentasi Anda saat ini <strong>${docPct}%</strong> dari total anggaran, di atas kisaran umum 10 sampai 15 persen. Wajar kalau ini memang prioritas utama kalian.`;
+      }
+      insightEl.innerHTML = msg;
+      insightEl.style.display = 'block';
+    } else if (total > 0) {
+      insightEl.innerHTML =
+        'Belum ada alokasi untuk pos <strong>Dokumentasi</strong>. Sebagai gambaran, banyak pasangan mengalokasikan sekitar <strong>10 sampai 15 persen</strong> dari total anggaran untuk foto dan video pernikahan.';
+      insightEl.style.display = 'block';
+    } else {
+      insightEl.style.display = 'none';
+    }
+  }
+
+  function renderWhatsApp(active: Row[], total: number) {
+    let message = 'Halo! Saya baru menyusun rencana anggaran pernikahan saya:\n\n';
+    active.forEach((r) => {
+      message += `- ${r.name || 'tanpa nama'}: ${formatRupiah(r.amount)}\n`;
+    });
+    message += `\nTotal: ${formatRupiah(total)}\n\nBoleh saya diskusikan bagian dokumentasinya?`;
+    // v1 sent this to the placeholder number 6280000000000 (budget:441).
+    waBtn.href = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(message)}`;
+  }
+
+  /** Geometry unchanged from v1 (budget:587-607). */
+  function renderRing(active: Row[], total: number) {
+    const cx = 120;
+    const cy = 120;
+    const r = 90;
+    const stroke = 22;
+    const circumference = 2 * Math.PI * r;
+    const ns = 'http://www.w3.org/2000/svg';
+
+    ringSvg.replaceChildren();
+
+    const track = document.createElementNS(ns, 'circle');
+    track.setAttribute('cx', String(cx));
+    track.setAttribute('cy', String(cy));
+    track.setAttribute('r', String(r));
+    track.setAttribute('fill', 'none');
+    track.setAttribute('stroke', 'var(--color-line)');
+    track.setAttribute('stroke-width', String(stroke));
+    ringSvg.appendChild(track);
+
+    if (total > 0 && active.length > 0) {
+      let offset = 0;
+      // Adjacent slices are close in value, so they are separated by a 2px gap
+      // rather than by hue. This also reads more editorial than a solid pie.
+      const GAP = 2;
+      [...active]
+        .sort((a, b) => b.amount - a.amount)
+        .forEach((row, i) => {
+          const dash = Math.max(0, (row.amount / total) * circumference - GAP);
+          const arc = document.createElementNS(ns, 'circle');
+          arc.setAttribute('cx', String(cx));
+          arc.setAttribute('cy', String(cy));
+          arc.setAttribute('r', String(r));
+          arc.setAttribute('fill', 'none');
+          arc.setAttribute('stroke', slice(i));
+          arc.setAttribute('stroke-width', String(stroke));
+          arc.setAttribute('stroke-dasharray', `${dash} ${circumference - dash}`);
+          arc.setAttribute('stroke-dashoffset', String(-offset));
+          arc.setAttribute('transform', `rotate(-90 ${cx} ${cy})`);
+          arc.setAttribute('stroke-linecap', 'butt');
+          ringSvg.appendChild(arc);
+          offset += dash + GAP;
+        });
+    }
+
+    const top = document.createElementNS(ns, 'text');
+    top.setAttribute('x', String(cx));
+    top.setAttribute('y', String(cy - 6));
+    top.setAttribute('class', 'ring-center-label ring-label-top');
+    top.textContent = 'ANGGARAN';
+
+    const count = document.createElementNS(ns, 'text');
+    count.setAttribute('x', String(cx));
+    count.setAttribute('y', String(cy + 16));
+    count.setAttribute('class', 'ring-center-label ring-label-count');
+    count.textContent = `${active.length} Pos`;
+
+    ringSvg.append(top, count);
+
+    // Justification: state transition. The ring materialising marks the moment
+    // the budget stops being empty. Fires once, and animates only transform and
+    // opacity, so stroke-dasharray is never touched.
+    if (!ringHasShown && total > 0) {
+      ringHasShown = true;
+      motion(() =>
+        gsap.from(ringWrap, { opacity: 0, scale: 0.96, duration: 0.7, ease: 'power3.out' }),
+      );
+    }
+  }
+
+  function render() {
+    renderRows();
+    computeAndRenderResults();
+  }
+
+  document.getElementById('addRow')!.addEventListener('click', addRow);
+
+  // Two-step inline confirm. v1 used confirm() (budget:619), which is a jarring
+  // OS dialog here and is suppressed outright in some embedded contexts.
+  const resetBtn = document.getElementById('resetBtn') as HTMLButtonElement;
+  let armed = false;
+  let armedTimer: ReturnType<typeof setTimeout>;
+  resetBtn.addEventListener('click', () => {
+    if (!armed) {
+      armed = true;
+      resetBtn.textContent = 'Yakin? Klik lagi';
+      armedTimer = setTimeout(() => {
+        armed = false;
+        resetBtn.textContent = 'Reset Data';
+      }, 4000);
+      return;
+    }
+    clearTimeout(armedTimer);
+    armed = false;
+    resetBtn.textContent = 'Reset Data';
+    rows = defaultRows.map((r) => ({ id: uid(), name: r.name, amount: r.amount }));
+    render();
+    save(rows);
+  });
+
+  void loadData();
+</script>

@@ -1,0 +1,151 @@
+---
+/**
+ * Full-bleed looping background video with a poster-first loading strategy.
+ *
+ * The poster <img> is the LCP element and paints immediately. The <video> sits
+ * above it at opacity 0 and cross-fades in only once it can actually play, so
+ * video weight never blocks the largest contentful paint.
+ *
+ * Three conditions fall back to poster-only and never touch the network for
+ * video: reduced-motion, Save-Data, and a 2g-class connection.
+ *
+ * Pass `embedUrl` instead of `sources` to switch to Cloudflare Stream or an
+ * unlisted Vimeo upload without changing anything else. See public/video/README.md.
+ */
+interface Props {
+  poster: string;
+  alt: string;
+  sources?: { src: string; type: string }[];
+  embedUrl?: string;
+}
+
+const { poster, alt, sources = [], embedUrl } = Astro.props;
+
+if (sources.length === 0 && !embedUrl) {
+  // Surfaced at build time so a poster-only hero is a known state, not a
+  // silent one. See public/video/README.md for the drop-in spec.
+  console.warn(
+    '[HeroVideo] No footage supplied. Running poster-only. ' +
+      'Add public/video/hero.mp4 and pass `sources` to enable the loop.',
+  );
+}
+---
+
+<div class="stage" data-hero-video>
+  <img
+    class="poster graded"
+    src={poster}
+    alt={alt}
+    fetchpriority="high"
+    decoding="async"
+    width="1920"
+    height="1080"
+  />
+
+  {embedUrl ? (
+    <iframe
+      class="media graded"
+      data-hero-media
+      src={embedUrl}
+      title={alt}
+      loading="lazy"
+      allow="autoplay; fullscreen; picture-in-picture"
+    ></iframe>
+  ) : sources.length > 0 ? (
+    <video
+      class="media graded"
+      data-hero-media
+      muted
+      loop
+      playsinline
+      preload="none"
+      aria-hidden="true"
+      tabindex="-1"
+      poster={poster}
+    >
+      {sources.map((s) => <source data-src={s.src} type={s.type} />)}
+    </video>
+  ) : null}
+
+  <!-- Scrim. Two stacked gradients keep the headline legible over any frame. -->
+  <div class="scrim" aria-hidden="true"></div>
+</div>
+
+<style>
+  .stage {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background-color: var(--color-ground);
+  }
+
+  .poster,
+  .media {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 0;
+  }
+
+  .media {
+    opacity: 0;
+    transition: opacity 1.2s ease;
+  }
+  .media[data-playing] {
+    opacity: 1;
+  }
+
+  .scrim {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to top, rgb(11 11 12 / 0.95) 0%, rgb(11 11 12 / 0.25) 45%, rgb(11 11 12 / 0.45) 100%),
+      linear-gradient(to right, rgb(11 11 12 / 0.7) 0%, rgb(11 11 12 / 0.1) 60%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .media {
+      transition-duration: 0.01ms;
+    }
+  }
+</style>
+
+<script>
+  const stage = document.querySelector<HTMLElement>('[data-hero-video]');
+  const media = stage?.querySelector<HTMLElement>('[data-hero-media]');
+
+  if (media) {
+    const conn = (navigator as any).connection;
+    const cheap =
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      conn?.saveData === true ||
+      /2g/.test(conn?.effectiveType ?? '');
+
+    if (!cheap) {
+      if (media instanceof HTMLVideoElement) {
+        // Sources are held in data-src so the browser fetches nothing until we
+        // have decided the connection can afford it.
+        media.querySelectorAll('source').forEach((s) => {
+          const src = s.getAttribute('data-src');
+          if (src) s.setAttribute('src', src);
+        });
+        media.load();
+        media.addEventListener(
+          'canplay',
+          () => {
+            media.setAttribute('data-playing', '');
+            // Autoplay can still be refused; the poster simply stays visible.
+            void media.play().catch(() => media.removeAttribute('data-playing'));
+          },
+          { once: true },
+        );
+      } else {
+        media.addEventListener('load', () => media.setAttribute('data-playing', ''), {
+          once: true,
+        });
+      }
+    }
+  }
+</script>

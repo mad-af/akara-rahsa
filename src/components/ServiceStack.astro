@@ -1,0 +1,159 @@
+---
+/**
+ * Layanan, as a pinned sticky-stack.
+ *
+ * v1 rendered these three services as three identical cards side by side, which
+ * invites comparison shopping and is the most templated layout there is. Pinning
+ * them instead makes each service read as its own chapter.
+ *
+ * Motion justification: storytelling. Each panel holds the viewport while its
+ * predecessor recedes, so the three services arrive in sequence rather than all
+ * at once.
+ */
+import { services } from '../config/services';
+---
+
+<section id="layanan" class="stack" aria-label="Layanan">
+  <div class="intro shell">
+    <h2 class="display heading">Tiga cara kami<br />menceritakan hari Anda</h2>
+  </div>
+
+  {services.map((s) => (
+    <article class="panel" data-panel>
+      <div class="panel-inner">
+        <img class="still graded" src={s.still} alt={s.alt} loading="lazy" decoding="async" />
+        <div class="veil" aria-hidden="true"></div>
+        <div class="copy shell">
+          <span class="mark" aria-hidden="true"></span>
+          <h3 class="display name">{s.name}</h3>
+          <p class="body">{s.body}</p>
+        </div>
+      </div>
+    </article>
+  ))}
+</section>
+
+<style>
+  .stack {
+    position: relative;
+    border-top: 1px solid var(--color-line-soft);
+  }
+
+  .intro {
+    padding-block: var(--spacing-section-sm) 3rem;
+  }
+  @media (min-width: 768px) {
+    .intro {
+      padding-block: var(--spacing-section) 4rem;
+    }
+  }
+  .heading {
+    font-size: clamp(2rem, 4.5vw, 3.25rem);
+    max-width: 18ch;
+  }
+
+  .panel {
+    position: sticky;
+    top: 0;
+    min-height: 100dvh;
+    display: flex;
+    align-items: stretch;
+  }
+
+  .panel-inner {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    border-top: 1px solid var(--color-line);
+    background-color: var(--color-ground);
+    will-change: transform, opacity;
+  }
+
+  .still {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .veil {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgb(11 11 12 / 0.97) 0%,
+      rgb(11 11 12 / 0.55) 55%,
+      rgb(11 11 12 / 0.35) 100%
+    );
+  }
+
+  .copy {
+    position: relative;
+    padding-block: 3.5rem 5rem;
+    max-width: 720px;
+  }
+  @media (min-width: 768px) {
+    .copy {
+      padding-block: 4rem 7rem;
+    }
+  }
+
+  .mark {
+    display: block;
+    width: 48px;
+    height: 1px;
+    background-color: var(--color-gold);
+    margin-bottom: 1.75rem;
+  }
+
+  .name {
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    margin-bottom: 1.25rem;
+  }
+
+  .body {
+    max-width: 46ch;
+    color: var(--color-paper-dim);
+    font-size: 1rem;
+  }
+</style>
+
+<script>
+  import { gsap, ScrollTrigger, motion } from '../scripts/motion';
+
+  const panels = gsap.utils.toArray<HTMLElement>('#layanan [data-panel]');
+
+  motion(() => {
+    const mm = gsap.matchMedia();
+
+    // The recede effect only runs where there is room for it. On short or narrow
+    // viewports the panels simply stack, which is the correct mobile behaviour.
+    mm.add('(min-width: 768px) and (prefers-reduced-motion: no-preference)', () => {
+      panels.forEach((panel, i) => {
+        const next = panels[i + 1];
+        if (!next) return;
+        const inner = panel.querySelector<HTMLElement>('.panel-inner');
+        if (!inner) return;
+
+        gsap.to(inner, {
+          scale: 0.94,
+          opacity: 0.45,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: next,
+            start: 'top bottom',
+            end: 'top top',
+            scrub: true,
+          },
+        });
+      });
+
+      return () => gsap.set('.panel-inner', { clearProps: 'transform,opacity' });
+    });
+
+    ScrollTrigger.refresh();
+  });
+</script>

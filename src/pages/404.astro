@@ -1,0 +1,41 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { url } from '../config/site';
+---
+
+<Layout title="Halaman tidak ditemukan, Akara Rahsa">
+  <section class="shell wrap">
+    <h1 class="display heading">Halaman ini tidak ada</h1>
+    <p class="lede">
+      Tautannya mungkin sudah berubah. Kembali ke beranda, atau lihat karya kami.
+    </p>
+    <div class="cta">
+      <a href={url()} class="btn-primary">Ke Beranda</a>
+      <a href={url('#portofolio')} class="btn-secondary">Lihat Karya</a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .wrap {
+    min-height: 60dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: 5rem 7rem;
+  }
+  .heading {
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin-bottom: 1.25rem;
+  }
+  .lede {
+    color: var(--color-paper-dim);
+    max-width: 42ch;
+    margin-bottom: 2.5rem;
+  }
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+</style>

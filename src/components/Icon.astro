@@ -1,0 +1,49 @@
+---
+/**
+ * Inlines a Tabler outline icon at build time by reading it straight from the
+ * installed package, so the paths are the real library's and never hand-drawn.
+ * Tabler is the single icon family for this project.
+ */
+import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+
+interface Props {
+  name: string;
+  size?: number;
+  stroke?: number;
+  class?: string;
+}
+
+const { name, size = 20, stroke = 1.5, class: className = '' } = Astro.props;
+
+// The package's exports map rewrites "./*" to "./icons/*", so this resolves
+// to node_modules/@tabler/icons/icons/outline/<name>.svg. Resolving through
+// the exports map rather than a hardcoded path keeps this working if the
+// package layout changes. An unknown icon name throws here, at build time.
+const require = createRequire(import.meta.url);
+const file = require.resolve(`@tabler/icons/outline/${name}.svg`);
+
+// Keep only the drawing commands; the wrapper <svg> is rebuilt below so size,
+// stroke width and accessibility attributes stay under our control.
+const inner = readFileSync(file, 'utf8')
+  .replace(/<svg[\s\S]*?>/, '')
+  .replace('</svg>', '')
+  .replace(/<path stroke="none"[^/]*\/>/, '')
+  .trim();
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width={stroke}
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+  class={className}
+  set:html={inner}
+/>

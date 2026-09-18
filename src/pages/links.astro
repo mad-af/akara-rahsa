@@ -1,0 +1,118 @@
+---
+/**
+ * Linktree-style page, ported from v1 src/pages/links.astro.
+ * The hand-drawn "home" SVG at v1 links.astro:11-15 is replaced by a Tabler
+ * glyph; brand marks stay on Simple Icons, now requested in white for the
+ * dark ground.
+ */
+import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+import Wordmark from '../components/Wordmark.astro';
+import { links, site, url } from '../config/site';
+
+const entries = [
+  { href: url(), label: 'Website Akara Rahsa', icon: 'home' as const },
+  { href: links.whatsapp, label: 'Chat WhatsApp', brand: 'whatsapp' },
+  { href: links.instagram, label: 'Instagram', brand: 'instagram' },
+  { href: links.tiktok, label: 'TikTok', brand: 'tiktok' },
+];
+---
+
+<Layout title="Tautan, Akara Rahsa" description="Semua tautan resmi Akara Rahsa.">
+  <section class="page">
+    <div class="profile">
+      <Wordmark class="big" />
+      <p class="tag">{site.tagline}</p>
+    </div>
+
+    <nav class="list" aria-label="Tautan resmi">
+      {entries.map((e) => (
+        <a
+          class="card"
+          href={e.href}
+          target={e.href.startsWith('http') ? '_blank' : undefined}
+          rel={e.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+        >
+          <span class="ico">
+            {e.brand ? (
+              <img src={`https://cdn.simpleicons.org/${e.brand}/F2EFE9`} width="20" height="20" alt="" loading="lazy" />
+            ) : (
+              <Icon name="home" size={20} />
+            )}
+          </span>
+          <span class="label">{e.label}</span>
+          <Icon name="arrow-narrow-right" size={18} class="arrow" />
+        </a>
+      ))}
+    </nav>
+  </section>
+</Layout>
+
+<style>
+  .page {
+    max-width: 420px;
+    margin-inline: auto;
+    padding: 3rem 1.5rem 5rem;
+    min-height: 70dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+  .profile {
+    margin-bottom: 2.5rem;
+  }
+  .profile :global(.big) {
+    font-size: 2rem;
+  }
+  .tag {
+    margin-top: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--color-paper-dim);
+  }
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .card {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--color-line);
+    background-color: var(--color-ground-lift);
+    text-align: left;
+    transition: border-color 0.25s ease, transform 0.25s ease;
+  }
+  .card:hover {
+    border-color: var(--color-gold-dim);
+    transform: translateY(-2px);
+  }
+  .ico {
+    display: flex;
+    width: 20px;
+    flex-shrink: 0;
+    color: var(--color-gold);
+  }
+  .label {
+    flex: 1;
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
+  .arrow {
+    flex-shrink: 0;
+    color: var(--color-paper-dim);
+    transition: transform 0.25s ease, color 0.25s ease;
+  }
+  .card:hover .arrow {
+    transform: translateX(4px);
+    color: var(--color-gold);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .card,
+    .arrow {
+      transition-duration: 0.01ms;
+    }
+  }
+</style>

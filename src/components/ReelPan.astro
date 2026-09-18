@@ -1,0 +1,217 @@
+---
+/**
+ * Portofolio, as a pinned horizontal pan.
+ *
+ * Motion justification: storytelling. A reel is horizontal by nature, so
+ * vertical scroll driving a horizontal track reads like scrubbing a timeline.
+ *
+ * On touch and narrow viewports the pin is dropped entirely and the same markup
+ * becomes a native scroll-snap carousel, because hijacking scroll on a phone
+ * fights the platform.
+ */
+import { projects } from '../config/portfolio';
+import { url } from '../config/site';
+import Icon from './Icon.astro';
+---
+
+<section id="portofolio" class="reel" aria-label="Portofolio">
+  <div class="head shell">
+    <p class="eyebrow">Portofolio</p>
+    <h2 class="display heading">Karya terpilih</h2>
+    <p class="lede">
+      Beberapa momen yang pernah kami abadikan. Setiap cerita punya warna dan nadanya sendiri.
+    </p>
+  </div>
+
+  <div class="viewport" data-pan-wrap>
+    <div class="track" data-pan-track>
+      {projects.map((p) => (
+        <a class="card" href={url(`portofolio/${p.slug}`)}>
+          <div class="frame">
+            <img class="graded" src={p.cover} alt={p.alt} loading="lazy" decoding="async" />
+          </div>
+          <div class="meta">
+            <h3 class="couple">{p.couple}</h3>
+            <p class="kind">
+              {p.kind}, {p.location} {p.year}
+              <Icon name="arrow-narrow-right" size={16} class="arr" />
+            </p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .reel {
+    border-top: 1px solid var(--color-line-soft);
+    padding-block: var(--spacing-section-sm);
+    overflow: hidden;
+  }
+  @media (min-width: 768px) {
+    .reel {
+      padding-block: var(--spacing-section);
+    }
+  }
+
+  .head {
+    max-width: 680px;
+    margin-bottom: 3.5rem;
+  }
+  .eyebrow {
+    margin-bottom: 1.25rem;
+  }
+  .heading {
+    font-size: clamp(2rem, 4.5vw, 3.25rem);
+    margin-bottom: 1.25rem;
+  }
+  .lede {
+    color: var(--color-paper-dim);
+    max-width: 44ch;
+  }
+
+  /* Mobile default: a real swipeable carousel, no pinning. */
+  .viewport {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .viewport::-webkit-scrollbar {
+    display: none;
+  }
+
+  .track {
+    display: flex;
+    gap: 1.25rem;
+    padding-inline: 1.5rem;
+    width: max-content;
+  }
+  @media (min-width: 768px) {
+    .track {
+      gap: 2rem;
+      padding-inline: 2.5rem;
+    }
+  }
+
+  .card {
+    scroll-snap-align: center;
+    flex: 0 0 auto;
+    width: min(78vw, 360px);
+    display: block;
+  }
+  @media (min-width: 768px) {
+    .card {
+      width: 420px;
+    }
+  }
+
+  .frame {
+    overflow: hidden;
+    aspect-ratio: 4 / 5;
+    background-color: var(--color-ground-lift);
+  }
+  .frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .card:hover .frame img {
+    transform: scale(1.06);
+  }
+
+  .meta {
+    padding-top: 1.25rem;
+  }
+  .couple {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+  }
+  .kind {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--color-paper-dim);
+  }
+  .card:hover .kind {
+    color: var(--color-gold);
+  }
+  .arr {
+    transition: transform 0.35s ease;
+  }
+  .card:hover .arr {
+    transform: translateX(4px);
+  }
+
+  /* When the pan takes over, the viewport fills the screen, so it must stop
+     scrolling natively, centre the track itself, and leave room for the
+     sticky header it now sits underneath. */
+  .viewport[data-pinned] {
+    overflow: hidden;
+    scroll-snap-type: none;
+    display: flex;
+    align-items: center;
+    min-height: 100dvh;
+    padding-top: var(--nav-h);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .frame img,
+    .arr {
+      transition-duration: 0.01ms;
+    }
+  }
+</style>
+
+<script>
+  import { gsap, ScrollTrigger, motion } from '../scripts/motion';
+
+  const wrap = document.querySelector<HTMLElement>('[data-pan-wrap]');
+  const track = document.querySelector<HTMLElement>('[data-pan-track]');
+
+  if (wrap && track) {
+    motion(() => {
+      const mm = gsap.matchMedia();
+
+      // Pin only on pointer-precise, wide viewports. Everything else keeps the
+      // native scroll-snap carousel defined in CSS.
+      mm.add(
+        '(min-width: 1024px) and (pointer: fine) and (prefers-reduced-motion: no-preference)',
+        () => {
+          wrap.setAttribute('data-pinned', '');
+
+          const distance = () => Math.max(0, track.scrollWidth - wrap.clientWidth);
+
+          const tween = gsap.to(track, {
+            x: () => -distance(),
+            ease: 'none',
+            scrollTrigger: {
+              trigger: wrap,
+              start: 'top top',
+              end: () => `+=${distance()}`,
+              pin: true,
+              scrub: 1,
+              invalidateOnRefresh: true,
+              anticipatePin: 1,
+            },
+          });
+
+          return () => {
+            wrap.removeAttribute('data-pinned');
+            tween.scrollTrigger?.kill();
+            tween.kill();
+            gsap.set(track, { clearProps: 'transform' });
+          };
+        },
+      );
+
+      ScrollTrigger.refresh();
+    });
+  }
+</script>

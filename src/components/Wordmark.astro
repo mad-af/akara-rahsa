@@ -1,0 +1,25 @@
+---
+/**
+ * Brand wordmark. Set in the display face rather than shipped as a logo file,
+ * because no logo asset exists yet.
+ *
+ * TODO: replace with the real logo once it is drawn. Keep the same footprint.
+ */
+interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+---
+
+<span class={`wordmark ${className}`}>Akara Rahsa</span>
+
+<style>
+  .wordmark {
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--color-paper);
+    white-space: nowrap;
+  }
+</style>

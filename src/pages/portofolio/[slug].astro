@@ -1,0 +1,176 @@
+---
+/**
+ * Project detail page.
+ *
+ * v1 linked to /portofolio/1 through /portofolio/4 from the landing page
+ * (index.astro:166-181) but never built those routes, so the main page shipped
+ * four 404s. This route makes those links real, driven by src/config/portfolio.ts.
+ */
+import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
+import { projects } from '../../config/portfolio';
+import { links, url } from '../../config/site';
+
+export function getStaticPaths() {
+  return projects.map((project, i) => ({
+    params: { slug: project.slug },
+    props: { project, next: projects[(i + 1) % projects.length] },
+  }));
+}
+
+const { project, next } = Astro.props;
+---
+
+<Layout
+  title={`${project.couple}, ${project.kind} | Akara Rahsa`}
+  description={project.intro}
+>
+  <article>
+    <header class="shell head">
+      <a class="back" href={url('#portofolio')}>
+        <Icon name="arrow-narrow-left" size={16} /> Semua karya
+      </a>
+      <h1 class="display title">{project.couple}</h1>
+      <p class="meta">{project.kind}, {project.location} {project.year}</p>
+      <p class="intro">{project.intro}</p>
+    </header>
+
+    <figure class="hero">
+      <img class="graded" src={project.cover} alt={project.alt} loading="eager" fetchpriority="high" />
+    </figure>
+
+    <div class="shell gallery">
+      {project.gallery.map((g) => (
+        <figure data-reveal>
+          <img class="graded" src={g.src} alt={g.alt} loading="lazy" decoding="async" />
+        </figure>
+      ))}
+    </div>
+
+    <footer class="shell foot">
+      <div class="cta">
+        <h2 class="display cta-heading">Punya rencana serupa?</h2>
+        <a href={links.whatsapp} target="_blank" rel="noopener noreferrer" class="btn-primary">
+          Jadwalkan Konsultasi
+        </a>
+      </div>
+      <a class="next" href={url(`portofolio/${next.slug}`)}>
+        <span class="next-label">Karya berikutnya</span>
+        <span class="next-name">{next.couple} <Icon name="arrow-narrow-right" size={18} /></span>
+      </a>
+    </footer>
+  </article>
+</Layout>
+
+<style>
+  .head {
+    padding-block: 3rem 3.5rem;
+    max-width: 780px;
+  }
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--color-paper-dim);
+    margin-bottom: 2.5rem;
+  }
+  .back:hover {
+    color: var(--color-gold);
+  }
+  .title {
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    margin-bottom: 0.75rem;
+  }
+  .meta {
+    font-size: 0.8125rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-gold);
+    margin-bottom: 1.75rem;
+  }
+  .intro {
+    color: var(--color-paper-dim);
+    max-width: 52ch;
+  }
+
+  .hero {
+    aspect-ratio: 16 / 9;
+    background-color: var(--color-ground-lift);
+  }
+  .hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .gallery {
+    display: grid;
+    gap: 1.5rem;
+    padding-block: 1.5rem;
+  }
+  @media (min-width: 768px) {
+    .gallery {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 2rem;
+      padding-block: 2rem;
+    }
+  }
+  .gallery img {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+  }
+
+  .foot {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    padding-block: 4rem 6rem;
+    border-top: 1px solid var(--color-line-soft);
+    margin-top: 2rem;
+  }
+  @media (min-width: 768px) {
+    .foot {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+  }
+  .cta-heading {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    margin-bottom: 1.5rem;
+  }
+  .next {
+    text-align: left;
+  }
+  @media (min-width: 768px) {
+    .next {
+      text-align: right;
+    }
+  }
+  .next-label {
+    display: block;
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-paper-dim);
+    margin-bottom: 0.5rem;
+  }
+  .next-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  .next:hover .next-name {
+    color: var(--color-gold);
+  }
+</style>
+
+<script>
+  import { revealOnScroll } from '../../scripts/motion';
+  revealOnScroll();
+</script>

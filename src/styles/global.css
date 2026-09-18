@@ -1,0 +1,262 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════════════════
+   AKARA RAHSA v2 - dark cinematic design tokens
+
+   Palette family: dark luxury (near-black ground + pale champagne gold).
+   Deliberately NOT the reflexive "premium" palette of beige ground +
+   brass #b08947, which is the most over-used combination in this
+   category and would make the brand unrecognisable.
+
+   Locks (see DESIGN.md):
+     Theme lock  - the entire site is dark. No section inverts.
+     Color lock  - gold is the ONLY accent, everywhere, including states.
+     Shape lock  - radius 0 on every surface. No pills, no rounded cards.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* `static` is required, not stylistic: Tailwind v4 tree-shakes theme
+   variables it cannot see used. The budget tool reads --color-gold at runtime
+   via getComputedStyle, which Tailwind has no way to detect, so without
+   `static` the variable is dropped from :root and the donut renders unstyled. */
+@theme static {
+  /* Ground. Near-black, very slightly cool.
+     Not #000 (kills depth), not warm espresso (#1a1714). */
+  --color-ground: #0b0b0c;
+  --color-ground-lift: #141416;
+  --color-line: #26262a;
+  --color-line-soft: #1b1b1e;
+
+  /* Text. Warm film-white, never pure #fff. */
+  --color-paper: #f2efe9;
+  --color-paper-dim: #9a968e;   /* 6.7:1 on ground - passes WCAG AA */
+  --color-paper-faint: #6b6862; /* decorative only, never body copy */
+
+  /* The one accent. A saturated amber gold.
+     The first pass used a pale champagne (#e3ce9b, 56% saturation), which read
+     as cream rather than gold and was hard to pick out. This is 79% saturation
+     at the same hue, and still clears AAA in both directions. */
+  --color-gold: #e8b93c;        /* 10.71:1 on ground - safe as text AND as fill */
+  --color-gold-dim: #907328;    /* 4.37:1 - rules and hairlines only, never text */
+
+  /* Height of the slim top bar. Used by the hero and by every pinned section,
+     which must reserve exactly this much room. Defined once so changing the bar
+     cannot silently break their layout. */
+  --nav-h: 64px;
+
+  --font-display: "Playfair Display Variable", Georgia, serif;
+  --font-body: "Noto Sans Variable", system-ui, sans-serif;
+
+  /* Editorial rhythm. Density dial is 3, so sections breathe. */
+  --spacing-section: 9rem;
+  --spacing-section-sm: 5rem;
+}
+
+/* ── Base ───────────────────────────────────────────────────────── */
+
+@layer base {
+  :root {
+    color-scheme: dark;
+
+    /* The accent's channels, for translucent variants.
+       CSS rgb() cannot take a hex custom property, so without this every
+       faded gold has to hardcode the triplet. The first pass did exactly that
+       in five places across three files, which made changing the accent a
+       hunt. This lives outside @theme on purpose: the --color-* namespace
+       belongs to Tailwind, which would try to build utilities from it. A plain
+       :root declaration is also never tree-shaken, so the budget tool can read
+       it back at runtime. */
+    --gold-rgb: 232 185 60;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    background-color: var(--color-ground);
+    color: var(--color-paper);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    line-height: 1.8;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: var(--color-gold);
+    color: var(--color-ground);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 3px;
+  }
+
+  img,
+  video {
+    display: block;
+    max-width: 100%;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+/* ── Components ─────────────────────────────────────────────────── */
+
+@layer components {
+  /* Primary CTA. Gold fill on near-black text = 12.4:1. */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 52px;
+    padding-inline: 2.25rem;
+    background-color: var(--color-gold);
+    color: var(--color-ground);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s ease, transform 0.15s ease;
+  }
+  .btn-primary:hover {
+    background-color: #ebc357;
+  }
+  .btn-primary:active {
+    transform: translateY(1px);
+  }
+  .btn-primary:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  /* Secondary. Outline on the dark ground. */
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 52px;
+    padding-inline: 2.25rem;
+    background-color: transparent;
+    color: var(--color-paper);
+    border: 1px solid #55534f;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: border-color 0.3s ease, color 0.3s ease, transform 0.15s ease;
+  }
+  .btn-secondary:hover {
+    border-color: var(--color-gold);
+    color: var(--color-gold);
+  }
+  .btn-secondary:active {
+    transform: translateY(1px);
+  }
+
+  /* Placeholder photography comes from several shoots with different white
+     balance and exposure. This pulls them into one register so the page reads
+     as a single body of work. Harmless once real, consistently graded work
+     replaces them, and cheap: it composites on the GPU. */
+  .graded {
+    filter: saturate(0.62) contrast(1.06) brightness(0.9);
+  }
+
+  /* The rationed uppercase micro-label. Budget: 3 per landing page. */
+  .eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-gold);
+  }
+
+  .display {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.08;
+  }
+
+  .shell {
+    width: 100%;
+    max-width: 1180px;
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+  }
+  @media (min-width: 768px) {
+    .shell {
+      padding-inline: 2.5rem;
+    }
+  }
+
+  /* Dark form control. Contrast audited: placeholder #8a867f on
+     #141416 is 4.8:1, label + value use --color-paper at 15:1. */
+  .field {
+    width: 100%;
+    background-color: var(--color-ground-lift);
+    border: 1px solid var(--color-line);
+    color: var(--color-paper);
+    padding: 0.875rem 1rem;
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+  .field::placeholder {
+    color: #8a867f;
+  }
+  .field:focus {
+    border-color: var(--color-gold);
+  }
+  .field:focus-visible {
+    outline: none;
+  }
+
+  .field-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-paper);
+  }
+}
+
+/* ── Motion utilities ───────────────────────────────────────────── */
+
+@layer utilities {
+  /* Elements GSAP will reveal start hidden, but ONLY when JS can run and
+     motion is allowed. Without this guard a JS failure or a reduced-motion
+     preference would leave the page permanently blank. */
+  .js-motion [data-reveal] {
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .js-motion [data-reveal] {
+      opacity: 1;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

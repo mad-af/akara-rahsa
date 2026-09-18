@@ -1,0 +1,191 @@
+---
+/**
+ * Ported from v1 src/pages/contact.astro.
+ *
+ * The v1 script (contact.astro:84-97) caught every failure and then wrote the
+ * SAME "Pesan terkirim!" success message as the happy path, so a visitor with
+ * no connectivity, or a build with GOOGLE_FORM_SCRIPT_URL unset, was told their
+ * enquiry had been sent when nothing left the browser. This version reports
+ * failure honestly and offers WhatsApp as the fallback.
+ */
+import Layout from '../layouts/Layout.astro';
+import { links, contact } from '../config/site';
+
+const scriptUrl = import.meta.env.GOOGLE_FORM_SCRIPT_URL ?? '';
+---
+
+<Layout
+  title="Kontak, Akara Rahsa"
+  description="Hubungi Akara Rahsa untuk mendiskusikan dokumentasi pernikahan Anda."
+>
+  <section class="wrap shell">
+    <div class="intro">
+      <h1 class="display heading">Mulai cerita Anda</h1>
+      <p class="lede">
+        Ceritakan rencana hari Anda. Kami balas dengan ketersediaan tanggal dan
+        paket yang paling masuk akal.
+      </p>
+    </div>
+
+    <form id="contact-form" data-url={scriptUrl} novalidate>
+      <div class="row">
+        <div class="group">
+          <label class="field-label" for="nama">Nama</label>
+          <input class="field" id="nama" type="text" name="nama" required autocomplete="name" />
+        </div>
+        <div class="group">
+          <label class="field-label" for="email">Email</label>
+          <input class="field" id="email" type="email" name="email" required autocomplete="email" />
+        </div>
+      </div>
+
+      <div class="group">
+        <label class="field-label" for="telepon">Nomor telepon</label>
+        <input class="field" id="telepon" type="tel" name="nomor_telepon" required autocomplete="tel" />
+      </div>
+
+      <div class="group">
+        <label class="field-label" for="komentar">Ceritakan rencana Anda</label>
+        <textarea class="field" id="komentar" name="komentar" rows="5"></textarea>
+        <p class="help">Tanggal, lokasi, dan perkiraan jumlah tamu sangat membantu.</p>
+      </div>
+
+      <button type="submit" id="submit-btn" class="btn-primary">Kirim Pesan</button>
+
+      <p id="form-result" class="result" role="status" aria-live="polite"></p>
+
+      <p class="alt">
+        Atau langsung lewat
+        <a href={links.whatsapp} target="_blank" rel="noopener noreferrer">WhatsApp</a>
+        dan <a href={links.email}>{contact.email}</a>.
+      </p>
+    </form>
+  </section>
+</Layout>
+
+<style>
+  .wrap {
+    padding-block: 4rem 6rem;
+    display: grid;
+    gap: 3.5rem;
+  }
+  @media (min-width: 900px) {
+    .wrap {
+      grid-template-columns: 1fr 1.15fr;
+      gap: 5rem;
+      padding-block: 6rem 8rem;
+    }
+  }
+  .heading {
+    font-size: clamp(2rem, 4.5vw, 3rem);
+    margin-bottom: 1.25rem;
+  }
+  .lede {
+    color: var(--color-paper-dim);
+    max-width: 38ch;
+  }
+  .row {
+    display: grid;
+    gap: 1.25rem;
+  }
+  @media (min-width: 560px) {
+    .row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .group {
+    margin-bottom: 1.25rem;
+  }
+  .row .group {
+    margin-bottom: 0;
+  }
+  .row {
+    margin-bottom: 1.25rem;
+  }
+  .help {
+    margin-top: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--color-paper-dim);
+  }
+  .result {
+    min-height: 1.5rem;
+    margin-top: 1rem;
+    font-size: 0.875rem;
+  }
+  .result[data-state='ok'] {
+    color: var(--color-gold);
+  }
+  .result[data-state='error'] {
+    /* One accent only, so failure is signalled by weight and an icon-free
+       prefix rather than by introducing a red. */
+    color: var(--color-paper);
+    font-weight: 500;
+  }
+  .result a {
+    color: var(--color-gold);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .alt {
+    margin-top: 2rem;
+    font-size: 0.8125rem;
+    color: var(--color-paper-dim);
+  }
+  .alt a {
+    color: var(--color-gold);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+</style>
+
+<script>
+  import { links } from '../config/site';
+
+  const form = document.getElementById('contact-form') as HTMLFormElement | null;
+  const result = document.getElementById('form-result');
+  const btn = document.getElementById('submit-btn') as HTMLButtonElement | null;
+
+  function fail(message: string) {
+    if (!result) return;
+    result.dataset.state = 'error';
+    result.innerHTML = `${message} Silakan hubungi kami lewat <a href="${links.whatsapp}" target="_blank" rel="noopener noreferrer">WhatsApp</a>.`;
+  }
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!result || !btn) return;
+
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    const url = form.dataset.url;
+    if (!url) {
+      // GOOGLE_FORM_SCRIPT_URL was not set at build time. Say so rather than
+      // pretending the message went somewhere.
+      fail('Formulir belum terhubung.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Mengirim...';
+    result.textContent = '';
+    delete result.dataset.state;
+
+    try {
+      // The Apps Script endpoint does not send CORS headers, so the response is
+      // opaque and cannot be inspected. A resolved promise means the request
+      // left the browser, which is the strongest claim we can honestly make.
+      await fetch(url, { method: 'POST', body: new URLSearchParams(new FormData(form) as any), mode: 'no-cors' });
+      result.dataset.state = 'ok';
+      result.textContent = 'Pesan terkirim. Terima kasih, kami segera membalas.';
+      form.reset();
+    } catch {
+      fail('Pesan gagal terkirim.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Kirim Pesan';
+    }
+  });
+</script>
