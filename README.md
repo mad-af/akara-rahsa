@@ -4,8 +4,15 @@ Company website for Akara Rahsa, a wedding content creator studio in Indonesia.
 Cinematic and video-first: a dark black-and-gold system built so footage and
 photography carry the page.
 
-Astro 7 (static) + Tailwind v4 + GSAP. Replaces the v1 site in
-`../akara-rahsa`.
+Astro 7 (static) + Tailwind v4 + GSAP.
+
+This replaced the v1 site in the same repository. **v1 is not gone**: its nine
+commits live on the `v1-archive` branch and the `v1.0.0` tag.
+
+```sh
+git fetch origin v1-archive
+git checkout v1-archive     # the old light editorial site
+```
 
 ## Run it
 
