@@ -41,9 +41,32 @@ Everything visual is a labelled placeholder. Search for `TODO:` to find them all
 2. **Photography.** Placeholders are hot-linked from Pexels. Replace the URLs in
    `src/config/services.ts` and `src/config/portfolio.ts`. Prefer low-key frames;
    see `DESIGN.md` section 7 for why.
-3. **Logo.** `src/components/Wordmark.astro` sets the name in Playfair. The
-   favicon is an "A" monogram. Both are stand-ins for a real mark.
-4. **Open Graph image.** `public/og.jpg`, 1200x630, does not exist yet.
+3. **Logo.** `src/components/Wordmark.astro` sets the name in Playfair, and the
+   icon set is built from that same letterform. Both are honest stand-ins, but
+   neither is a drawn mark.
+
+## Icons and share image
+
+These are done, and are generated rather than drawn by hand.
+
+`public/favicon.svg` is the wordmark's "A" knocked out of a gold tile. The letter
+is Playfair Display at weight 900 **converted to outlines**, which matters: a
+favicon renders isolated from the page, so a `<text>` element cannot reach the
+webfont and silently falls back to a system serif. The weight and optical size
+were chosen by rendering at 16px and comparing, not by eye at full size.
+
+The set is `favicon.svg`, `favicon.ico` (real 16, 32 and 48 frames, not one
+scaled), `apple-touch-icon.png` (180, opaque and full-bleed because iOS applies
+its own rounded mask), `icon-192.png`, `icon-512.png` and `site.webmanifest`.
+
+`public/og-default.jpg` is 1200x630, type only: wordmark, gold rule, tagline. It
+carries no photograph on purpose, so it does not go stale when the placeholder
+photography is replaced. It stays legible down to about 200px wide, which is
+roughly a WhatsApp chat preview.
+
+To regenerate after a brand change, the inputs are the Playfair woff2 in
+`node_modules/@fontsource-variable/playfair-display/` and the tokens in
+`src/styles/global.css`.
 
 ## Layout of the source
 
