@@ -92,11 +92,20 @@ const href = (h: string) => (h.startsWith('#') ? url() + h : url(h));
 </header>
 
 <style>
+  /* Fixed, not sticky. Sticky kept the bar in normal flow, which pushed the
+     hero down by --nav-h and left the page background showing behind it. The
+     bar was already transparent; there was simply nothing behind it. Fixed
+     lets the hero start at the top of the viewport so the video runs under
+     the bar and the two read as one surface.
+     --sb-gap compensates for the scrollbar while the menu is open; without it
+     a fixed bar widens by the scrollbar width and visibly jumps. */
   #navbar {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 80;
-    width: 100%;
+    padding-right: var(--sb-gap, 0px);
     background: transparent;
     border-bottom: 1px solid transparent;
     transition: background-color 0.35s ease, backdrop-filter 0.35s ease,
@@ -409,7 +418,12 @@ const href = (h: string) => (h.startsWith('#') ? url() + h : url(h));
       // Compensate for the vanishing scrollbar so the page does not jump.
       const gap = window.innerWidth - document.documentElement.clientWidth;
       document.body.style.overflow = 'hidden';
-      if (gap > 0) document.body.style.paddingRight = `${gap}px`;
+      if (gap > 0) {
+        document.body.style.paddingRight = `${gap}px`;
+        // The bar is fixed, so body padding does not move it. It reads the
+        // same gap as a custom property instead.
+        document.documentElement.style.setProperty('--sb-gap', `${gap}px`);
+      }
 
       // Hide the rest of the page from assistive tech and from Tab entirely.
       outside().forEach((el) => el.setAttribute('inert', ''));
@@ -440,6 +454,7 @@ const href = (h: string) => (h.startsWith('#') ? url() + h : url(h));
       outside().forEach((el) => el.removeAttribute('inert'));
       document.body.style.overflow = '';
       document.body.style.paddingRight = '';
+      document.documentElement.style.removeProperty('--sb-gap');
 
       const finish = () => {
         panel.hidden = true;

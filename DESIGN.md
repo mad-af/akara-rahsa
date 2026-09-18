@@ -181,6 +181,27 @@ Two rules hold it together:
 The bar sits above the overlay and stays visible while it is open, so the trigger
 doubles as the close control and the wordmark never disappears.
 
+**The bar is fixed and transparent, not sticky.** Sticky kept it in normal flow,
+which pushed the hero down by `--nav-h` and left the page background showing
+behind it. The bar was already transparent; there was simply nothing behind it to
+see. Fixed lets the hero fill the viewport so the footage runs under the bar and
+the two read as one surface.
+
+That has consequences worth stating, because they are easy to reintroduce:
+
+- Pages that are not full-bleed reserve the height themselves, via
+  `padding-top: calc(var(--nav-h) + 4rem)`. The bar no longer reserves it.
+- The hero is `100dvh`, not `100dvh` minus the bar, and its copy is
+  bottom-aligned so it never collides with the bar at the top.
+- Bar text now sits over live footage, so the hero scrim carries a soft top
+  falloff. It is a gradient, not a strip: a solid band would just reinstate the
+  bar this removes.
+- Once the page scrolls past the hero the bar takes a translucent surface with a
+  blur, because below the hero there is no scrim to sit on.
+- A fixed bar does not move when body padding compensates for the scrollbar
+  during the scroll lock, so it reads the same gap through `--sb-gap` and would
+  otherwise visibly jump as the menu opens.
+
 The overlay is a dialog and is built as one: `aria-modal`, a focus trap that
 wraps in both directions, `inert` on everything outside it, Escape to close, and
 focus returned to the trigger afterwards. The trigger's label is visually hidden

@@ -101,7 +101,11 @@ if (sources.length === 0 && !embedUrl) {
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(to top, rgb(11 11 12 / 0.95) 0%, rgb(11 11 12 / 0.25) 45%, rgb(11 11 12 / 0.45) 100%),
+      /* Top falloff. The bar is transparent over live footage now, so its text
+         needs a floor to sit on. A soft gradient reads as part of the grade;
+         a solid strip would just reinstate the bar this change removed. */
+      linear-gradient(to bottom, rgb(11 11 12 / 0.72) 0%, rgb(11 11 12 / 0.28) 9%, rgb(11 11 12 / 0) 20%),
+      linear-gradient(to top, rgb(11 11 12 / 0.95) 0%, rgb(11 11 12 / 0.25) 45%, rgb(11 11 12 / 0.3) 100%),
       linear-gradient(to right, rgb(11 11 12 / 0.7) 0%, rgb(11 11 12 / 0.1) 60%);
   }
 

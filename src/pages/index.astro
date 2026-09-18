@@ -170,10 +170,10 @@ const featuredStill =
   /* ── 1. Hero ── */
   .hero {
     position: relative;
-    /* The sticky bar occupies --nav-h of normal flow, so a full 100dvh here
-       would push the hero exactly that far past the fold and clip the
-       secondary CTA. */
-    min-height: calc(100dvh - var(--nav-h));
+    /* Full viewport: the bar is fixed and overlays this, so nothing is
+       subtracted. Hero copy is bottom-aligned, so it never collides with the
+       bar at the top. */
+    min-height: 100dvh;
     display: flex;
     align-items: flex-end;
     isolation: isolate;

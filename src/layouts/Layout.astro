@@ -79,8 +79,10 @@ const ogImage = new URL(url('og.jpg'), Astro.site ?? 'https://akarahsa.com');
         left: 1rem;
         top: 1rem;
       }
+      /* The bar is fixed, so it reserves no space of its own. Pages that are
+         not full-bleed have to account for it plus their own breathing room. */
       .pad {
-        padding-top: 4rem;
+        padding-top: calc(var(--nav-h) + 4rem);
       }
     </style>
   </body>
