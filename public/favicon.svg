@@ -1,23 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Akara Rahsa">
-  <!-- Akara Rahsa mark: "A" knocked out of a solid gold tile.
+  <!-- Akara Rahsa mark: Playfair Display "A" (weight 900) knocked out of a gold
+       tile, converted to outlines.
 
-       The letter is Noto Sans at weight 800, converted to outlines.
+       Not a <text> element on purpose: a favicon renders isolated from the page,
+       so it can never reach the webfont and would fall back to a system serif.
 
-       Two things here were learned the hard way and should not be undone:
+       The stroke is doing real work, not decoration. Playfair is a didone, so its
+       left diagonal and crossbar are hairlines. Rendered flat they fall below one
+       device pixel at small sizes and vanish, leaving a lopsided blob. Stroking
+       the path in the same colour thickens every contour uniformly, which lifts
+       those hairlines back over a pixel while leaving the letterform itself
+       untouched. It is the same correction a type designer makes when cutting an
+       optical size for small text.
 
-       1. It is NOT a <text> element. A favicon renders isolated from the
-          document, so the page's webfont never reaches it and a text element
-          silently falls back to whatever the system has.
-       2. It is NOT set in Playfair, even though Playfair is the display face
-          everywhere else on the site. Playfair is a didone: at 16px its thin
-          left stroke and hairline crossbar dissolve completely and the letter
-          reads as a lopsided blob. Noto Sans has even stroke weight, so the
-          crossbar and counter survive. Weight and optical size were chosen by
-          rendering candidates at true 16px, not judged at display size.
+       The value here is tuned for the sizes browsers actually request the SVG at.
+       The raster sizes carry their own values, strongest at 16px and almost none
+       at 512px, which is why they are generated rather than scaled from one file.
 
-       The dark plate sits underneath so the counter is opaque brand black; left
-       transparent it would show the browser's tab colour, which differs between
-       light and dark themes. -->
-  <rect width="64" height="64" fill="#0B0B0C"/>
-  <path fill="#E8B93C" fill-rule="evenodd" d="M0 0H64V64H0Z M43.365724808228734 56.31999999999999 40.26476399058578 45.990145353905156H23.79967486052999L20.659370859483964 56.31999999999999H8.001618723849376L24.4633084902371 7.68H39.390166928172945L55.998381276150624 56.31999999999999ZM34.9353401760809 27.03543845885634Q34.62464413354254 25.903235050557875 34.0425952318689 23.701567403242674Q33.46054633019526 21.499899755927473 32.885621186366805 19.14288408734309Q32.31069604253835 16.78586841875871 31.985752484309625 15.32872145223152Q31.700152109483962 16.899848544281724 31.16626983089261 19.12118778329846Q30.632387552301257 21.342527022315195 30.098505273709904 23.46040925732217Q29.56462299511855 25.578291492329143 29.186088737796375 27.03543845885634L26.37072829497908 36.383013641910736H37.73645310320781Z"/>
-</svg>
+       The dark plate underneath keeps the counter opaque; left transparent it
+       would show the browser's tab colour, which differs between themes. -->
+<rect width="64" height="64" fill="#E8B93C"/><path fill="#0B0B0C" stroke="#0B0B0C" stroke-width="3.0" stroke-linejoin="round" d="M36.16 7.039999999999999 53.22305084745763 51.03728813559322Q54.21016949152543 53.434576271186444 55.33830508474577 54.45694915254238Q56.466440677966105 55.479322033898306 57.383050847457625 55.54983050847458V56.96Q54.84474576271187 56.81898305084746 51.460338983050846 56.78372881355932Q48.07593220338983 56.748474576271185 44.550508474576276 56.748474576271185Q40.95457627118644 56.748474576271185 37.781694915254235 56.78372881355932Q34.60881355932204 56.81898305084746 32.70508474576272 56.96V55.54983050847458Q36.30101694915254 55.408813559322034 37.2528813559322 54.315932203389835Q38.204745762711866 53.22305084745763 36.79457627118644 49.6271186440678L25.513220338983054 18.39186440677966L26.923389830508476 15.924067796610174L17.193220338983053 41.23661016949153Q15.430508474576273 45.819661016949155 15.042711864406781 48.604745762711865Q14.65491525423729 51.389830508474574 15.360000000000003 52.87050847457627Q16.065084745762714 54.351186440677964 17.616271186440677 54.91525423728814Q19.167457627118644 55.479322033898306 21.28271186440678 55.54983050847458V56.96Q18.673898305084748 56.81898305084746 16.59389830508475 56.78372881355932Q14.513898305084748 56.748474576271185 12.046101694915256 56.748474576271185Q10.706440677966103 56.748474576271185 9.190508474576273 56.78372881355932Q7.674576271186442 56.81898305084746 6.616949152542375 56.96V55.54983050847458Q8.238644067796612 55.26779661016949 9.825084745762712 53.46983050847457Q11.411525423728815 51.67186440677966 13.103728813559325 47.30033898305085L28.756610169491527 7.039999999999999Q30.448813559322037 7.181016949152543 32.45830508474577 7.181016949152543Q34.46779661016949 7.181016949152543 36.16 7.039999999999999ZM38.6277966101695 36.6535593220339V38.06372881355932H17.616271186440677L18.321355932203392 36.6535593220339Z"/></svg>

@@ -49,22 +49,29 @@ Everything visual is a labelled placeholder. Search for `TODO:` to find them all
 
 These are done, and are generated rather than drawn by hand.
 
-`public/favicon.svg` is an "A" knocked out of a gold tile, set in **Noto Sans at
-weight 800 and converted to outlines**.
+`public/favicon.svg` is the wordmark's "A" knocked out of a gold tile, set in
+**Playfair Display at weight 900 and converted to outlines**.
 
-Two things about that are deliberate and should not be undone:
+Two things about it are deliberate and should not be undone:
 
-- It is not a `<text>` element. A favicon renders isolated from the page, so it
-  can never reach the webfont, and a text element silently falls back to whatever
-  serif the system happens to have.
-- It is **not** set in Playfair, even though Playfair is the display face
-  everywhere else. Playfair is a didone: at 16px its thin left stroke and
-  hairline crossbar dissolve completely and the letter reads as a lopsided blob.
-  The first version of this icon made exactly that mistake. Noto Sans has even
-  stroke weight, so the crossbar and the counter both survive.
+- **It is not a `<text>` element.** A favicon renders isolated from the page, so
+  it can never reach the webfont, and a text element silently falls back to
+  whatever serif the system happens to have.
+- **The stroke on the path is doing real work, not decoration.** Playfair is a
+  didone, so its left diagonal and crossbar are hairlines. Rendered flat they
+  fall below one device pixel at small sizes and disappear, leaving a lopsided
+  blob rather than a letter. Stroking the path in its own colour thickens every
+  contour uniformly, lifting those hairlines back over a pixel without altering
+  the letterform. It is the same correction a type designer makes when cutting an
+  optical size for small text.
 
-Weight and optical size were picked by rendering a grid of candidates at true
-16px and comparing, not judged at display size.
+**The raster sizes are generated, not scaled from one file**, because each one
+carries a different amount of that compensation: strongest at 16px, almost none
+at 512px where Playfair's hairlines are an asset rather than a liability. If you
+regenerate these, keep that per-size ramp or the small sizes will go muddy again.
+
+Values were picked by rendering candidates at true 16px and comparing, not judged
+at display size.
 
 The set is `favicon.svg`, `favicon.ico` (real 16, 32 and 48 frames, not one
 scaled), `apple-touch-icon.png` (180, opaque and full-bleed because iOS applies
